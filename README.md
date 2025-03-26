@@ -1,171 +1,152 @@
-# Dify微信公众号插件
+# Dify WeChat Official Account Plugin
 
-**作者:** bikeread  
-**版本:** 0.0.1  
-**类型:** extension  
+**Author:** bikeread  
+**Version:** 0.0.2
+**Type:** extension  
 
-## 项目概述
+## Overview
 
-Dify微信公众号插件专为自媒体运营者和公众号主理人打造，将AI能力无缝接入您的微信公众号，提供24小时智能客服与内容助手服务。
+The Dify WeChat Official Account Plugin is designed for content creators and public account owners who want to integrate AI capabilities into their WeChat Official Accounts. It provides 24/7 intelligent customer service and content assistance.
 
-## 核心价值
+## Quick Setup Guide
 
-1. **智能粉丝互动**: 提供24小时不间断对话服务，提升粉丝活跃度
-2. **内容辅助创作**: 为粉丝提供专业问题解答和创意支持
-3. **数据收集分析**: 了解粉丝关注点，发现内容机会
-4. **降低运营成本**: 自动回复常见问题，减轻人工客服负担
+### Step 1: Configure the Plugin
 
-## 主要功能
+1. After installing the plugin, create a new endpoint
+2. Configure the following settings:
+   - **Endpoint Name**: Any name you prefer
+   - **APP**: Select the Dify application that will handle user messages
+   - **WeChat Token**: Copy from your WeChat Official Account platform
+   - **EncodingAESKey**: Copy from your WeChat Official Account platform
+   - **AppID**: Your Official Account's AppID
+   - **AppSecret**: Your Official Account's AppSecret
+   - **Timeout Message**: A message to show when response takes longer than 15 seconds
 
-- **基础支持**: 服务器验证、明文/加密模式、Dify AI智能回复
-- **多类型消息**: 支持文本消息，即将支持图片、语音和链接消息
-- **会话管理**: 支持对话记忆和历史清除功能
-- **技术优化**: 解决微信5秒超时限制，延长至15秒，支持流式响应
+> **Note**: The timeout message is important because WeChat requires a response within 15 seconds. If your AI application takes longer to generate a complete response:
+> - The timeout message will be sent as an immediate response
+> - If AppID and AppSecret are configured, the complete AI response will be sent via WeChat's customer service message API
+> - Please ensure your Official Account has permission to send customer service messages
 
-## 运营价值
+### Step 2: Configure WeChat Official Account
 
-- 提升粉丝活跃度和留存率
-- 差异化竞争优势
-- 数据驱动内容创作
-- 全天候服务能力
+1. Log in to WeChat Official Account Platform (https://mp.weixin.qq.com/)
+2. Go to "Settings & Development" -> "Basic Settings"
+3. Under "Server Configuration":
+   - Copy one of the two endpoint URLs from your plugin configuration
+   - Paste it into the "Server URL" field
+   - Set the same Token as configured in your plugin
+   - Choose message encryption method (Plain Text or Secure Mode)
+   - If using Secure Mode, set the same EncodingAESKey as in your plugin
+4. Click "Submit" to save the configuration
 
-## 快速配置
+![Configuration Example](img.png)
 
-### 微信公众号配置
+### Step 3: Verify Configuration
 
-1. 登录微信公众平台（https://mp.weixin.qq.com/）
-2. 进入"设置与开发" -> "基本配置"
-3. 在"服务器配置"部分：
-   - URL设置为您的Dify插件访问地址，例如：`http://your-domain.com/wechat/input`
-   - Token设置一个自定义的安全令牌
-   - 选择消息加解密方式
-   - 如需加密模式，设置EncodingAESKey
+1. After saving both plugin and WeChat configurations
+2. Send a test message to your Official Account
+3. If you receive an AI response, the configuration is successful
 
-### 插件配置
+## Plugin Configuration
 
-必选参数：
-- `wechat_token`: 与公众号平台配置相同的Token
+Required Settings:
+- `wechat_token`: Same token as configured in your WeChat Official Account
 
-加密模式参数：
-- `encoding_aes_key`: 与公众号平台配置的EncodingAESKey
-- `app_id`: 公众号的AppID
+Encryption Mode Settings:
+- `encoding_aes_key`: Same as EncodingAESKey in your WeChat Official Account
+- `app_id`: Your Official Account's AppID
 
-客服消息支持：
-- `app_secret`: 公众号的AppSecret
+Customer Service Message Support:
+- `app_secret`: Your Official Account's AppSecret
 
-可选参数：
-- `timeout_message`: 超时时发送的临时响应消息
+Optional Settings:
+- `timeout_message`: Temporary response message for timeout situations
 
-## 加密模式说明
+## Advanced Usage
 
-微信公众平台支持三种消息加解密方式：
+### Supported Message Types
 
-1. **明文模式**：消息以明文方式传输，不进行加密。
-   - 配置简单，但安全性较低
-   - 只需配置`wechat_token`，无需设置`encoding_aes_key`和`app_id`
+This plugin supports multiple types of messages that your users can send to your WeChat Official Account:
 
-2. **兼容模式/安全模式**：消息需要加密处理。
-   - 安全性更高，需要额外的加解密处理
-   - 需要配置：`wechat_token`, `encoding_aes_key`, `app_id`
+1. **Text Messages**
+   - Users can send regular text messages
+   - Relevant input parameters:
+     ```
+     msgId: Unique message ID
+     msgType: Message type ("text")
+     fromUser: Sender's OpenID
+     createTime: Message creation timestamp
+     content: The text message content
+     ```
 
-## 使用方法
+2. **Image Messages**
+   - Users can send image content
+   - The system provides image URL to AI for processing
+   - Relevant input parameters:
+     ```
+     msgId: Unique message ID
+     msgType: Message type ("image")
+     fromUser: Sender's OpenID
+     createTime: Message creation timestamp
+     picUrl: URL of the image sent by user
+     ```
 
-1. 完成插件配置，保存并启用
-2. 用户发送消息至公众号
-3. 系统自动调用AI处理并回复
-4. 发送"清除历史聊天记录"可重置对话
+3. **Voice Messages**
+   - Users can send voice recordings
+   - The system converts voice to base64 format for AI processing
+   - Relevant input parameters:
+     ```
+     msgId: Unique message ID
+     msgType: Message type ("voice")
+     fromUser: Sender's OpenID
+     createTime: Message creation timestamp
+     media_id: WeChat media ID for the voice
+     voice_base64: Base64 encoded voice data
+     voice_media_type: Media type of the voice
+     voice_format: Format of the voice (default "amr")
+     ```
 
-## 架构说明
+4. **Link Messages**
+   - Users can share links to articles/websites
+   - The system extracts link information for AI processing
+   - Relevant input parameters:
+     ```
+     msgId: Unique message ID
+     msgType: Message type ("link")
+     fromUser: Sender's OpenID
+     createTime: Message creation timestamp
+     url: The shared URL
+     title: Title of the shared link
+     description: Description of the shared link
+     ```
+Your Dify application can access all these parameters in the conversation context and respond accordingly.
 
-本插件采用模块化设计，主要组件包括：
+## Technical Architecture
 
-### 目录结构
+This plugin uses a modular design with the following main components:
+
+### Directory Structure
 ```
 endpoints/
-├── wechat/                    # 微信处理核心模块
-│   ├── __init__.py            # 包初始化文件
-│   ├── models.py              # 定义WechatMessage消息模型
-│   ├── parsers.py             # 定义XML解析器
-│   ├── formatters.py          # 定义响应格式化器
-│   ├── factory.py             # 定义消息处理器工厂
-│   ├── crypto.py              # 微信消息加解密工具
-│   ├── retry_tracker.py       # 消息重试跟踪器
-│   ├── api/                   # API调用相关
-│   │   ├── __init__.py        # API包初始化
-│   │   └── custom_message.py  # 客服消息发送器
-│   └── handlers/              # 消息处理器
-│       ├── __init__.py        # 处理器包初始化
-│       ├── base.py            # 定义处理器抽象基类
-│       ├── text.py            # 文本消息处理器
-│       ├── image.py           # 图片消息处理器
-│       ├── voice.py           # 语音消息处理器
-│       ├── link.py            # 链接消息处理器
-│       └── unsupported.py     # 不支持的消息类型处理器
-├── wechat_get.py              # 处理微信服务器验证请求
-└── wechat_post.py             # 处理用户发送的消息
-```
-
-### 消息处理流程
-
-1. **消息接收**：`wechat_post.py` 接收微信服务器发来的消息
-2. **消息解析**：使用 `MessageParser` 解析XML格式的消息
-3. **重试检测**：使用 `MessageStatusTracker` 判断是否为重试请求
-4. **消息处理**：
-   - 首次请求：启动异步线程处理，等待一定时间（默认5.0秒）
-   - 重试请求：先等待一段较短时间（默认4.0秒），然后根据处理状态返回适当响应
-5. **响应返回**：使用 `ResponseFormatter` 格式化回复，加密后返回
-6. **后台处理**：如果处理超时，通过客服消息发送完整回复
-
-### 设计模式
-
-本插件使用了多种设计模式：
-
-1. **策略模式**: 通过`MessageHandler`抽象类定义统一接口，不同消息类型使用不同的实现
-2. **工厂模式**: 使用`MessageHandlerFactory`根据消息类型创建相应处理器
-3. **适配器模式**: 使用解析器和格式化器转换不同格式的数据
-4. **装饰器模式**: 使用装饰器处理消息的加解密
-5. **观察者模式**: 使用线程和事件通知机制监控处理完成
-6. **异步处理模式**: 使用子线程处理长耗时请求，避免微信超时
-7. **单例模式**: `MessageStatusTracker`使用类变量实现单例状态跟踪
-
-## 扩展开发指南
-
-### 添加新的消息类型支持
-
-要添加对新消息类型（如视频、小程序消息等）的支持，按以下步骤操作：
-
-1. 在`handlers`目录下创建新的处理器类，继承`MessageHandler`：
-
-```python
-# handlers/video.py
-from typing import Dict, Any
-from .base import MessageHandler
-from ..models import WechatMessage
-
-class VideoMessageHandler(MessageHandler):
-    def handle(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        # 实现视频消息处理逻辑
-        # ...
-        return "收到您的视频，正在处理..."
-```
-
-2. 在`MessageHandlerFactory`中注册新的处理器：
-
-```python
-# 在项目初始化时注册
-from endpoints.wechat.factory import MessageHandlerFactory
-from endpoints.wechat.handlers.video import VideoMessageHandler
-
-MessageHandlerFactory.register_handler('video', VideoMessageHandler)
-```
-
-### 自定义响应格式
-
-要支持更复杂的响应格式（如图文消息），可以扩展`ResponseFormatter`：
-
-```python
-@staticmethod
-def format_news_xml(message: WechatMessage, articles: list) -> str:
-    # 实现图文消息XML格式化
-    # ...
+├── wechat/                    # Core WeChat processing module
+│   ├── __init__.py            # Package initialization
+│   ├── models.py              # WechatMessage model definition
+│   ├── parsers.py             # XML parser definition
+│   ├── formatters.py          # Response formatter definition
+│   ├── factory.py             # Message handler factory
+│   ├── crypto.py              # WeChat message encryption tools
+│   ├── retry_tracker.py       # Message retry tracker
+│   ├── api/                   # API-related
+│   │   ├── __init__.py        # API package initialization
+│   │   └── custom_message.py  # Customer service message sender
+│   └── handlers/              # Message handlers
+│       ├── __init__.py        # Handlers package initialization
+│       ├── base.py            # Abstract handler base class
+│       ├── text.py            # Text message handler
+│       ├── image.py           # Image message handler
+│       ├── voice.py           # Voice message handler
+│       ├── link.py            # Link message handler
+│       └── unsupported.py     # Unsupported message type handler
+├── wechat_get.py              # Handle WeChat server verification
+└── wechat_post.py             # Handle user messages
 ```
