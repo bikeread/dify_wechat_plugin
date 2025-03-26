@@ -9,32 +9,35 @@ from ..models import WechatMessage
 logger = logging.getLogger(__name__)
 
 class TextMessageHandler(MessageHandler):
-    """文本消息处理器"""
+    """text message handler"""
     
     def handle(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
         """
-        处理文本消息并返回回复内容
+        handle text message and return reply content
         
-        参数:
-            message: 要处理的微信文本消息对象
-            session: 当前会话对象，用于访问存储和AI接口
-            app_settings: 应用设置字典
+        params:
+            message: wechat text message object to handle
+            session: current session object for accessing storage and AI interface
+            app_settings: application settings dictionary
             
-        返回:
-            处理后的回复内容字符串
+        return:
+            processed reply content string
         """
         try:
-            # 记录开始处理
-            logger.info(f"开始处理用户'{message.from_user}'的文本消息: '{message.content[:50]}...'")
+            # record start processing
+            logger.info(f"start processing user's text message: '{message.content[:50]}...'")
             
-            # 1. 获取会话ID
-            conversation_id = self._get_conversation_id(session, self.get_storage_key(message.from_user))
+            # 1. get conversation id
+            conversation_id = self._get_conversation_id(session, self.get_storage_key(message.from_user, app_settings.get("app").get("app_id")))
 
             inputs = {
                 "msgId": message.msg_id,
                 "msgType": message.msg_type,
+                "fromUser": message.from_user,
+                "media_id": message.media_id,
+                "createTime": message.create_time,
             }
-            # 2. 调用AI获取响应
+            # 2. invoke AI to get response
             response_generator = self._invoke_ai(
                 session, 
                 app_settings, 
@@ -44,14 +47,14 @@ class TextMessageHandler(MessageHandler):
                 user_id=message.from_user
             )
             
-            # 3. 处理AI响应
+            # 3. process AI response
             answer = self._process_ai_response(response_generator)
             
-            logger.info(f"处理完成，响应长度: {len(answer)}")
+            logger.info(f"processed, response length: {len(answer)}")
             
             return answer
         except Exception as e:
-            logger.error(f"处理文本消息失败: {str(e)}")
+            logger.error(f"failed to handle text message: {str(e)}")
             if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"异常堆栈: {traceback.format_exc()}")
-            return f"抱歉，处理您的消息时出现了问题: {str(e)}"
+                logger.debug(f"exception stack: {traceback.format_exc()}")
+            return f"sorry, there was an issue processing your message: {str(e)}"

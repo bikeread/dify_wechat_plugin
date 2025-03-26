@@ -7,40 +7,40 @@ from typing import Dict, Any, Optional
 logger = logging.getLogger(__name__)
 
 class WechatCustomMessageSender:
-    """微信客服消息发送器"""
+    """wechat custom message sender"""
     
-    TOKEN_CACHE = {}  # 用于缓存访问令牌
+    TOKEN_CACHE = {}  # for caching access token
     
     def __init__(self, app_id: str, app_secret: str):
         """
-        初始化客服消息发送器
+        initialize custom message sender
         
-        参数:
-            app_id: 微信公众号的AppID
-            app_secret: 微信公众号的AppSecret
+        params:
+            app_id: wechat public account app id
+            app_secret: wechat public account app secret
         """
         self.app_id = app_id
         self.app_secret = app_secret
     
     def _get_access_token(self) -> str:
         """
-        获取微信接口访问令牌
+        get wechat api access token
         
-        返回:
-            有效的access_token字符串
+        return:
+            valid access_token string
         
-        异常:
-            Exception: 当获取令牌失败时
+        exception:
+            Exception: when get token failed
         """
-        # 检查缓存中是否有有效的令牌
+        # check if there is a valid token in cache
         cache_key = f"{self.app_id}_{self.app_secret}"
         if cache_key in self.TOKEN_CACHE:
             token_info = self.TOKEN_CACHE[cache_key]
-            # 检查令牌是否过期（提前5分钟刷新）
+            # check if the token is expired (refresh 5 minutes before expiration)
             if token_info['expires_at'] > time.time() + 300:
                 return token_info['token']
         
-        # 请求新的访问令牌
+        # request new access token
         url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={self.app_id}&secret={self.app_secret}"
         
         try:
@@ -48,45 +48,45 @@ class WechatCustomMessageSender:
             result = response.json()
             
             if 'access_token' in result:
-                # 计算过期时间 (令牌有效期通常为7200秒)
+                # calculate expiration time (token valid period is usually 7200 seconds)
                 expires_at = time.time() + result.get('expires_in', 7200)
-                # 保存到缓存
+                # save to cache
                 self.TOKEN_CACHE[cache_key] = {
                     'token': result['access_token'],
                     'expires_at': expires_at
                 }
                 return result['access_token']
             else:
-                error_msg = f"获取访问令牌失败: {result.get('errmsg', '未知错误')}"
+                error_msg = f"get access token failed: {result.get('errmsg', 'unknown error')}"
                 logger.error(error_msg)
                 raise Exception(error_msg)
         
         except Exception as e:
-            logger.error(f"请求访问令牌异常: {str(e)}")
+            logger.error(f"request access token error: {str(e)}")
             raise
     
     def send_text_message(self, open_id: str, content: str) -> Dict[str, Any]:
         """
-        发送文本客服消息
+        send text custom message
         
-        参数:
-            open_id: 接收消息用户的OpenID
-            content: 文本消息内容
+        params:
+            open_id: user open id
+            content: text message content
             
-        返回:
-            API响应结果
+        return:
+            API response result
             
-        异常:
-            Exception: 当发送失败时
+        exception:
+            Exception: when send failed
         """
         try:
-            # 获取访问令牌
+            # get access token
             access_token = self._get_access_token()
             
-            # 构建请求URL
+            # build request url
             url = f"https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={access_token}"
             
-            # 构建请求数据
+            # build request data
             data = {
                 "touser": open_id,
                 "msgtype": "text",
@@ -95,7 +95,7 @@ class WechatCustomMessageSender:
                 }
             }
             
-            # 发送请求
+            # send request
             response = requests.post(
                 url=url,
                 data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
@@ -103,11 +103,11 @@ class WechatCustomMessageSender:
                 timeout=10
             )
             
-            # 解析响应
+            # parse response
             result = response.json()
             
             if result.get('errcode', 0) != 0:
-                error_msg = f"发送客服消息失败: {result.get('errmsg', '未知错误')}"
+                error_msg = f"send custom message failed: {result.get('errmsg', 'unknown error')}"
                 logger.error(error_msg)
                 return {
                     'success': False,
@@ -121,7 +121,7 @@ class WechatCustomMessageSender:
             }
             
         except Exception as e:
-            logger.error(f"发送客服消息异常: {str(e)}")
+            logger.error(f"send custom message error: {str(e)}")
             return {
                 'success': False,
                 'error': str(e)

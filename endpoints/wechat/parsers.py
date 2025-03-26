@@ -5,36 +5,36 @@ from .models import WechatMessage
 logger = logging.getLogger(__name__)
 
 class MessageParser:
-    """消息解析器"""
+    """message parser"""
     @staticmethod
     def parse_xml(raw_data: str) -> WechatMessage:
         """
-        解析XML数据为WechatMessage对象
+        parse XML data to WechatMessage object
         
-        参数:
-            raw_data: XML格式的原始数据
+        params:
+            raw_data: raw XML data
             
-        返回:
-            WechatMessage对象
+        return:
+            WechatMessage object
             
-        异常:
-            ValueError: 当XML解析失败时
+        exception:
+            ValueError: when XML parsing fails
         """
         try:
             xml_data = ET.fromstring(raw_data)
             
-            # 提取公共字段
+            # extract common fields
             msg_type = xml_data.find('MsgType').text
             from_user = xml_data.find('FromUserName').text
             to_user = xml_data.find('ToUserName').text
             create_time = xml_data.find('CreateTime').text
             
-             # 提取消息ID（如果存在）
+            # extract message ID (if exists)
             msg_id_elem = xml_data.find('MsgId')
             msg_id = msg_id_elem.text if msg_id_elem is not None else None
 
             
-            # 根据不同消息类型提取特定字段
+            # extract specific fields based on different message types
             if msg_type == 'text':
                 content = xml_data.find('Content').text
                 return WechatMessage(
@@ -64,7 +64,7 @@ class MessageParser:
                 format_elem = xml_data.find('Format')
                 format = format_elem.text if format_elem is not None else None
                 
-                # 语音识别结果（可能不存在）
+                # voice recognition result (may not exist)
                 recognition_elem = xml_data.find('Recognition')
                 recognition = recognition_elem.text if recognition_elem is not None else None
                 
@@ -125,18 +125,18 @@ class MessageParser:
                 )
             
             elif msg_type == 'event':
-                # 事件类型消息
+                # event type message
                 event = xml_data.find('Event').text
                 
-                # 事件KEY（可能不存在）
+                # event key (may not exist)
                 event_key_elem = xml_data.find('EventKey')
                 event_key = event_key_elem.text if event_key_elem is not None else None
                 
-                # 二维码ticket（可能不存在，用于扫描带参数二维码事件）
+                # QR code ticket (may not exist, used for scanning QR code with parameters)
                 ticket_elem = xml_data.find('Ticket')
                 ticket = ticket_elem.text if ticket_elem is not None else None
                 
-                logger.info(f"解析到事件消息: 事件类型={event}, 事件KEY={event_key}")
+                logger.info(f"parsed event message: event type={event}, event key={event_key}")
                 
                 return WechatMessage(
                     msg_type=msg_type,
@@ -150,8 +150,8 @@ class MessageParser:
                 )
             
             else:
-                # 默认构造基本消息对象
-                logger.warning(f"未知消息类型: {msg_type}")
+                # default construct basic message object
+                logger.warning(f"unknown message type: {msg_type}")
                 return WechatMessage(
                     msg_type=msg_type,
                     from_user=from_user,
@@ -161,5 +161,5 @@ class MessageParser:
                 )
                 
         except Exception as e:
-            logger.error(f"XML解析失败: {str(e)}")
-            raise ValueError(f"无法解析XML: {str(e)}") 
+            logger.error(f"failed to parse XML: {str(e)}")
+            raise ValueError(f"failed to parse XML: {str(e)}") 

@@ -9,7 +9,7 @@ from .handlers.link import LinkMessageHandler
 from .handlers.event import EventMessageHandler
 
 class MessageHandlerFactory:
-    """消息处理器工厂"""
+    """message handler factory"""
     _handlers: Dict[str, Type[MessageHandler]] = {
         'text': TextMessageHandler,
         'image': ImageMessageHandler,
@@ -22,13 +22,13 @@ class MessageHandlerFactory:
     @classmethod
     def get_handler(cls, msg_type: str) -> MessageHandler:
         """
-        获取对应类型的消息处理器
+        get the message handler for the corresponding type
         
-        参数:
-            msg_type: 消息类型
+        params:
+            msg_type: message type
             
-        返回:
-            对应类型的消息处理器实例
+        return:
+            the instance of the message handler for the corresponding type
         """
         handler_class = cls._handlers.get(msg_type, cls._handlers['default'])
         return handler_class()
@@ -36,10 +36,10 @@ class MessageHandlerFactory:
     @classmethod
     def register_handler(cls, msg_type: str, handler_class: Type[MessageHandler]) -> None:
         """
-        注册新的消息处理器
+        register a new message handler
         
-        参数:
-            msg_type: 消息类型
-            handler_class: 对应的处理器类
+        params:
+            msg_type: message type
+            handler_class: the corresponding handler class
         """
         cls._handlers[msg_type] = handler_class 

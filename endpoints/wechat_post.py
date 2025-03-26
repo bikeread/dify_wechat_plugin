@@ -7,155 +7,145 @@ from werkzeug import Request, Response
 from dify_plugin import Endpoint
 
 from endpoints.wechat.handlers import MessageHandler
-# 导入拆分后的组件
+# import the split components
 from endpoints.wechat.parsers import MessageParser
 from endpoints.wechat.factory import MessageHandlerFactory
 from endpoints.wechat.formatters import ResponseFormatter
 from endpoints.wechat.crypto import WechatMessageCryptoAdapter
 from endpoints.wechat.api import WechatCustomMessageSender
-# 导入重试跟踪器
+# import the retry tracker
 from endpoints.wechat.retry_tracker import MessageStatusTracker
 
-# 获取当前模块的日志记录器
+# get the logger for the current module
 logger = logging.getLogger(__name__)
 
-# 默认超时和响应设置
-DEFAULT_HANDLER_TIMEOUT = 5.0  # 默认超时时间5.0秒，固定值
-DEFAULT_TEMP_RESPONSE = "内容生成耗时较长，请稍等..."  # 默认临时响应消息
-# 重试等待时间为正常超时时间的一半
-RETRY_WAIT_TIMEOUT = DEFAULT_HANDLER_TIMEOUT * 0.8  # 重试时使用较短的等待时间
-# 清除历史标识消息
-CLEAR_HISTORY_MESSAGE = "清除历史聊天记录"
+# default timeout and response settings
+DEFAULT_HANDLER_TIMEOUT = 5.0  # default timeout time 5.0 seconds, fixed value
+DEFAULT_TEMP_RESPONSE = "内容生成耗时较长，请稍等..."  # default temporary response message
+# retry waiting time is half of the normal timeout time
+RETRY_WAIT_TIMEOUT = DEFAULT_HANDLER_TIMEOUT * 0.8  # use a shorter waiting time for retries
+# clear history identifier message
+CLEAR_HISTORY_MESSAGE = "/clear"
 
 
 class WechatPost(Endpoint):
-    """微信公众号消息处理端点"""
+    """wechat public account message processing endpoint"""
     def _invoke(self, r: Request, values: Mapping, settings: Mapping) -> Response:
-        """处理微信请求"""
-        # 记录请求信息
-        logger.info("===== 微信请求信息 =====")
-        logger.debug(f"请求方法: {r.method}, URL: {r.url}")
-        logger.debug(f"请求头: {dict(r.headers)}")
+        """handle wechat request"""
+        # record request information
+        logger.info("===== wechat request information =====")
+        logger.debug(f"request method: {r.method}, URL: {r.url}")
+        logger.debug(f"request headers: {dict(r.headers)}")
         
-        # 记录查询参数和表单数据(如果有)
+        # record query parameters and form data (if any)
         if r.args:
-            logger.debug(f"查询参数: {dict(r.args)}")
-        
-        # 获取请求体 - 减少单独的try-catch
-        body = ""
-        try:
-            body = r.get_data(as_text=True)
-        except Exception as e:
-            logger.warning(f"读取请求体时出错: {str(e)}")
-        
-        # 记录插件配置 - 减少单独的try-catch
-        if 'app' in settings:
-            app_config = settings.get('app', {})
-            logger.debug(f"应用配置: app_id={app_config.get('app_id', '未配置')}")
-        
-        # 1. 获取配置的临时响应消息
-        temp_response_message = settings.get('WECHAT_TEMP_RESPONSE', DEFAULT_TEMP_RESPONSE)
+            logger.debug(f"query parameters: {dict(r.args)}")
+
+        logger.info("application configuration: %s", settings)
+
+        # 1. get the temporary response message from the configuration
+        temp_response_message = settings.get('timeout_message', DEFAULT_TEMP_RESPONSE)
         
         try:
-            # 2. 创建加密适配器
+            # 2. create the encryption adapter
             crypto_adapter = WechatMessageCryptoAdapter(settings)
             
-            # 3. 解密消息
+            # 3. decrypt the message
             try:
                 decrypted_data = crypto_adapter.decrypt_message(r)
-                logger.debug(f"解密后数据: {decrypted_data}")
+                logger.debug(f"decrypted data: {decrypted_data}")
             except Exception as e:
-                logger.error(f"解密消息失败: {str(e)}")
-                return Response('解密失败', status=400)
+                logger.error(f"failed to decrypt message: {str(e)}")
+                return Response('decryption failed', status=400)
                 
-            # 4. 解析消息内容
+            # 4. parse the message content
             message = MessageParser.parse_xml(decrypted_data)
-            # 创建处理器并调用清除缓存方法
+            # create the handler and call the clear cache method
             handler = MessageHandlerFactory.get_handler(message.msg_type)
-            # 如果收到清除历史记录的指令
+            # if the clear history instruction is received
             if message.content == CLEAR_HISTORY_MESSAGE:
                 success = handler.clear_cache(self.session, message.from_user)
                 
-                # 返回清除结果
-                result_message = "已清除历史聊天记录" if success else "清除历史记录失败，请稍后再试"
-                logger.info(f"清除历史记录操作: {result_message}")
+                # return the clear result
+                result_message = "history chat records have been cleared" if success else "failed to clear history records, please try again later"
+                logger.info(f"clear history operation: {result_message}")
                 
-                # 返回响应
+                # return the response
                 response_xml = ResponseFormatter.format_xml(message, result_message)
                 encrypted_response = crypto_adapter.encrypt_message(response_xml, r)
                 return Response(encrypted_response, status=200, content_type="application/xml")
 
-            # 5. 使用MessageStatusTracker跟踪消息状态
-            # 直接传递消息对象，让跟踪器内部决定使用哪种标识
+            # 5. use MessageStatusTracker to track the message status
+            # directly pass the message object, let the tracker decide which identifier to use
             message_status = MessageStatusTracker.track_message(message)
             retry_count = message_status.get('retry_count', 0)
             
-            # 初始化结果已返回标志
+            # initialize the result returned flag
             message_status['result_returned'] = False
             
-            # 6. 处理重试请求
+            # 6. handle the retry request
             if retry_count > 0:
-                logger.info(f"检测到重试请求，当前重试次数: {retry_count}")
+                logger.info(f"detected retry request, current retry count: {retry_count}")
                 return self._handle_retry(message, message_status, retry_count, 
                                         temp_response_message, crypto_adapter, r)
             
-            # 7. 处理首次请求
+            # 7. handle the first request
             return self._handle_first_request(message, message_status, settings, 
                                             handler, crypto_adapter, r)
         except Exception as e:
-            logger.error(f"处理请求失败: {str(e)}")
+            logger.error(f"failed to handle request: {str(e)}")
             return Response("", status=200, content_type="application/xml")
     
     def _handle_retry(self, message, message_status, retry_count, 
                      temp_message, crypto_adapter, request):
-        """处理重试请求"""
-        # 获取完成事件
+        """handle retry request"""
+        # get the completion event
         completion_event = message_status.get('completion_event')
         
-        # 直接等待处理完成或超时
-        # 如果已完成，wait会立即返回True；如果未完成，才会等待指定时间
+        # directly wait for processing to complete or timeout
+        # if completed, wait will return True immediately; if not completed, it will wait for the specified time
         is_completed = False
         if completion_event:
             is_completed = completion_event.wait(timeout=RETRY_WAIT_TIMEOUT)
         
         if is_completed or message_status.get('is_completed', False):
-            # 处理已完成，返回结果
-            logger.debug(f"重试请求: 处理已完成或等待期间完成，直接返回结果")
-            response_content = message_status.get('result', '') or "抱歉，处理结果为空"
+            # the processing has been completed, return the result
+            logger.debug(f"retry request: processing completed or completed during waiting, return the result directly")
+            response_content = message_status.get('result', '') or "sorry, the processing result is empty"
 
-            # 使用原子操作标记结果已返回
+            # use the atomic operation to mark the result as returned
             if not MessageStatusTracker.mark_result_returned(message):
-                logger.debug(f"重试请求: 结果已被其他线程返回，跳过处理")
+                logger.debug(f"retry request: the result has been returned by other threads, skip processing")
                 return Response("", status=200)
             
-            # HTTP返回了完整结果，显式设置skip_custom_message标记
-            # 这样比只设置retry_completion_event更明确
+            # HTTP returned the complete result, explicitly set the skip_custom_message flag
+            # this is more explicit than only setting retry_completion_event
             message_status['skip_custom_message'] = True
             
-            # 设置重试完成事件，同时也通知客服消息线程
+            # set the retry completion event, also notify the customer message thread
             retry_completion_event = message_status.get('retry_completion_event')
             if retry_completion_event:
-                logger.debug(f"重试请求: HTTP已返回完整结果，通知客服消息线程跳过发送")
+                logger.debug(f"retry request: HTTP returned the complete result, notify the customer message thread to skip sending")
                 retry_completion_event.set()
             
-            # 格式化并返回响应
+            # format and return the response
             response_xml = ResponseFormatter.format_xml(message, response_content)
             encrypted_response = crypto_adapter.encrypt_message(response_xml, request)
             return Response(encrypted_response, status=200, content_type="application/xml")
         
-        # 等待后仍未完成，继续原有的重试策略
-        logger.debug(f"重试请求: 处理未完成，第{retry_count}次重试")
-        if retry_count < 2:  # 前两次重试返回500状态码
-            logger.debug(f"重试请求: 返回500状态码以触发后续重试")
+        # still not completed after waiting, continue the original retry strategy
+        logger.debug(f"retry request: processing not completed, {retry_count}th retry")
+        if retry_count < 2:  # the first two retries return 500 status code
+            logger.debug(f"retry request: return 500 status code to trigger subsequent retries")
             return Response("", status=500)
-        else:  # 最后一次重试，返回临时消息
-            logger.info(f"重试请求: 最后一次重试，返回临时消息")
+        else:  # the last retry, return the temporary message
+            logger.info(f"retry request: the last retry, return the temporary message")
             
-            # 获取重试完成事件并设置，通知客服消息线程可以开始发送
-            # 但不设置skip_custom_message，表示需要通过客服消息发送完整结果
+            # get the retry completion event and set it, notify the customer message thread to start sending
+            # but do not set skip_custom_message, indicating that the full result needs to be sent through the customer message
             retry_completion_event = message_status.get('retry_completion_event')
             if retry_completion_event:
-                logger.debug(f"重试请求: 最后一次重试完成，通知客服消息线程可以开始发送")
+                logger.debug(f"retry request: the last retry completed, notify the customer message thread to start sending")
                 retry_completion_event.set()
             
             response_xml = ResponseFormatter.format_xml(message, temp_message)
@@ -165,18 +155,18 @@ class WechatPost(Endpoint):
     def _handle_first_request(self, message, message_status, settings, 
                              handler: MessageHandler, crypto_adapter, request):
         
-        # 创建完成事件
+        # create the completion event
         completion_event = threading.Event()
         message_status['completion_event'] = completion_event
         
-        # 创建重试完成事件，用于通知客服消息线程
+        # create the retry completion event, used to notify the customer message thread
         retry_completion_event = threading.Event()
         message_status['retry_completion_event'] = retry_completion_event
         
-        # 初始化客服消息跳过标记为False
+        # initialize the customer message skip flag to False
         message_status['skip_custom_message'] = False
         
-        # 启动异步处理线程
+        # start the asynchronous processing thread
         thread = threading.Thread(
             target=self._async_process_message,
             args=(handler, message, settings, message_status, completion_event),
@@ -184,28 +174,28 @@ class WechatPost(Endpoint):
             name=f"Msg-Processor-{message.from_user}"
         )
         
-        # 记录处理开始时间并启动线程
+        # record the processing start time and start the thread
         thread.start()
         
-        # 等待处理完成或超时
+        # wait for processing to complete or timeout
         is_completed = completion_event.wait(timeout=DEFAULT_HANDLER_TIMEOUT)
         
         if is_completed:
-            # 处理已完成，直接返回结果
+            # the processing has been completed, return the result directly
             response_content = message_status.get('result', '') or "抱歉，处理结果为空"
 
-            # 首次请求直接标记结果已返回，不存在竞争情况
+            # the first request directly marks the result as returned, there is no competition
             MessageStatusTracker.mark_result_returned(message)
             
-            # 格式化并返回响应
+            # format and return the response
             response_xml = ResponseFormatter.format_xml(message, response_content)
             encrypted_response = crypto_adapter.encrypt_message(response_xml, request)
             return Response(encrypted_response, status=200, content_type="application/xml")
         else:
-            # 处理超时，发送临时响应并继续异步处理
-            logger.info(f"首次请求: 处理超时，转为异步处理")
+            # the processing has timed out, send the temporary response and continue the asynchronous processing
+            logger.info(f"first request: processing timed out, switched to asynchronous processing")
             
-            # 启动异步发送客服消息线程
+            # start the asynchronous sending customer message thread
             async_thread = threading.Thread(
                 target=self._wait_and_send_custom_message,
                 args=(message, message_status, settings, completion_event),
@@ -217,38 +207,38 @@ class WechatPost(Endpoint):
             return Response("", status=500)
     
     def _async_process_message(self, handler, message, settings, message_status, completion_event):
-        """异步处理消息"""
+        """asynchronous processing message"""
         start_time = time.time()
         
         try:
-            logger.debug(f"异步处理: 开始处理消息 {message.msg_type}-{message.from_user}")
+            logger.debug(f"asynchronous processing: start processing message {message.msg_type}-{message.from_user}")
             
-            # 使用处理器处理消息
+            # use the processor to process the message
             result = handler.handle(message, self.session, settings)
             
-            # 打印完整结果（debug级别）
-            logger.debug(f"异步处理: 获取到完整结果:\n{result}")
+            # print the full result (debug level)
+            logger.debug(f"asynchronous processing: get the full result:\n{result}")
             
-            # 更新状态
+            # update the status
             message_status['result'] = result
             message_status['is_completed'] = True
 
-            # 更新跟踪器
+            # update the tracker
             MessageStatusTracker.update_status(
                 message,
                 result=result,
                 is_completed=True
             )
         except Exception as e:
-            logger.error(f"异步处理: 处理消息时出错: {str(e)}")
+            logger.error(f"asynchronous processing: error occurred while processing message: {str(e)}")
             
-            # 更新错误状态
-            error_msg = f"处理失败: {str(e)}"
+            # update the error status
+            error_msg = f"processing failed: {str(e)}"
             message_status['result'] = error_msg
             message_status['error'] = error_msg
             message_status['is_completed'] = True
             
-            # 更新跟踪器
+            # update the tracker
             MessageStatusTracker.update_status(
                 message,
                 result=error_msg,
@@ -256,68 +246,68 @@ class WechatPost(Endpoint):
                 is_completed=True
             )
         finally:
-            # 设置完成事件
+            # set the completion event
             completion_event.set()
             
-            # 记录处理耗时
+            # record the processing time
             elapsed = time.time() - start_time
-            logger.info(f"异步处理: 消息 {message.msg_id} 处理完成，耗时 {elapsed:.2f}秒")
+            logger.info(f"asynchronous processing: message {message.msg_id} processed, time elapsed: {elapsed:.2f} seconds")
     
     def _wait_and_send_custom_message(self, message, message_status, settings, completion_event):
-        """等待处理完成并发送客服消息"""
+        """wait for processing to complete and send customer message"""
         try:
-            # 首先等待处理完成（最多5分钟）
+            # first wait for processing to complete (up to 5 minutes)
             is_completed = completion_event.wait(timeout=300)
             
             if not is_completed:
-                logger.warning(f"客服消息: 等待处理超时(>5分钟)，强制结束等待")
+                logger.warning(f"customer message: waiting for processing to complete (>5 minutes), force end waiting")
                 MessageStatusTracker.update_status(
                     message.msg_id,
-                    result="处理超时，请重试",
+                    result="processing timed out, please try again",
                     is_completed=True,
-                    error="处理超时(>5分钟)"
+                    error="processing timed out (>5 minutes)"
                 )
                 return
             
-            # 等待重试流程完成（使用事件而不是轮询）
+            # wait for the retry process to complete (use event instead of polling)
             retry_completion_event = message_status.get('retry_completion_event')
             if retry_completion_event:
-                logger.debug(f"客服消息: 等待重试流程完成...")
-                # 设置一个合理的超时时间，例如20秒
+                logger.debug(f"customer message: waiting for the retry process to complete...")
+                # set a reasonable timeout, for example 20 seconds
                 retry_completed = retry_completion_event.wait(timeout=20)
                 
                 if not retry_completed:
-                    logger.warning(f"客服消息: 等待重试完成超时(>20秒)")
+                    logger.warning(f"customer message: waiting for the retry process to complete (>20 seconds)")
                 else:
-                    logger.debug(f"客服消息: 重试流程已完成")
+                    logger.debug(f"customer message: the retry process has been completed")
             
-            # 检查是否应该跳过客服消息发送
+            # check if the customer message should be skipped
             if message_status.get('skip_custom_message', False):
-                logger.debug(f"客服消息: HTTP已返回完整结果，跳过客服消息发送")
+                logger.debug(f"customer message: HTTP returned the complete result, skip sending")
                 return
             
-            # 使用原子操作标记结果已返回，如果标记失败则说明结果已由HTTP返回
+            # use the atomic operation to mark the result as returned, if the marking fails, it means the result has been returned by HTTP
             if not MessageStatusTracker.mark_result_returned(message):
-                logger.debug(f"客服消息: 结果已被其他途径返回，跳过客服消息发送")
+                logger.debug(f"customer message: the result has been returned by other means, skip sending")
                 return
                 
-            # 获取处理结果
+            # get the processing result
             content = message_status.get('result', '') or "抱歉，无法获取处理结果"
             
-            # 打印完整内容（debug级别）
-            logger.debug(f"消息完整内容:\n{content}")
+            # print the full content (debug level)
+            logger.debug(f"customer message: full content:\n{content}")
             
-            # 检查配置中是否有客服消息所需的参数
+            # check if the configuration has the parameters required for customer message
             app_id = settings.get('app_id')
             app_secret = settings.get('app_secret')
             
             if not app_id or not app_secret:
-                logger.error("客服消息: 缺少app_id或app_secret配置")
+                logger.error("customer message: missing app_id or app_secret configuration")
                 return
-            
-            # 初始化客服消息发送器并发送消息
+
+            # initialize the customer message sender and send the message
             sender = WechatCustomMessageSender(app_id, app_secret)
-            logger.debug(f"客服消息: 发送给用户 {message.from_user}，内容长度: {len(content)}")
+            logger.debug(f"customer message: sending to user {message.from_user}, content length: {len(content)}")
             
             send_result = sender.send_text_message(
                 open_id=message.from_user,
@@ -325,9 +315,9 @@ class WechatPost(Endpoint):
             )
             
             if send_result.get('success'):
-                logger.info("客服消息: 发送成功")
+                logger.info("customer message: sent successfully")
             else:
-                error_msg = send_result.get('error', '未知错误')
-                logger.error(f"客服消息: 发送失败: {error_msg}")
+                error_msg = send_result.get('error', 'unknown error')
+                logger.error(f"customer message: sending failed: {error_msg}")
         except Exception as e:
-            logger.error(f"客服消息: 处理过程中出错: {str(e)}")
+            logger.error(f"customer message: error occurred during processing: {str(e)}")

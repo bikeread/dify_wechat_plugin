@@ -1,70 +1,70 @@
-# 微信公众号插件隐私政策
+# WeChat Official Account Plugin Privacy Policy
 
-本隐私政策说明了 Dify 微信公众号插件如何收集、使用和处理用户数据。请在使用本插件前仔细阅读本政策。
+This privacy policy explains how the Dify WeChat Official Account Plugin collects, uses, and processes user data. Please read this policy carefully before using this plugin.
 
-## 数据收集
+## Data Collection
 
-本插件收集和处理以下类型的数据：
+This plugin collects and processes the following types of data:
 
-### 配置信息
-- 微信公众号配置（Token、EncodingAESKey、AppID、AppSecret）
-  - 用途：用于与微信公众平台进行安全通信和身份验证
-  - 存储位置：仅存储在您的 Dify 实例中，不会被发送到任何第三方服务
+### Configuration Information
+- WeChat Official Account Configuration (Token, EncodingAESKey, AppID, AppSecret)
+  - Purpose: Used for secure communication and authentication with the WeChat Official Account platform.
+  - Storage Location: Stored only in your Dify instance and will not be sent to any third-party services.
 
-### 用户互动数据
-- 微信用户的 OpenID
-  - 用途：识别用户会话、维持对话上下文
-  - 存储位置：临时存储在会话中
+### User Interaction Data
+- WeChat User OpenID
+  - Purpose: Identify user sessions and maintain conversation context.
+  - Storage Location: Temporarily stored in the session.
 
-- 用户发送的消息内容
-  - 用途：发送给 Dify AI 应用进行处理和回复
-  - 存储位置：会话过程中临时存储，用于维持对话上下文
+- Message Content Sent by Users
+  - Purpose: Sent to the Dify AI application for processing and response.
+  - Storage Location: Temporarily stored during the session to maintain conversation context.
 
-- 会话历史记录
-  - 用途：保持对话连续性
-  - 存储位置：存储在 Dify 提供的存储空间内
-  - 保留时间：根据 Dify 应用的对话记忆设置决定
+- Conversation History
+  - Purpose: Maintain conversation continuity.
+  - Storage Location: Stored within the storage space provided by Dify.
+  - Retention Time: Determined by the Dify application's conversation memory settings.
 
-## 数据使用
+## Data Usage
 
-本插件收集的数据仅用于以下目的：
-1. 实现微信公众号与 Dify AI 应用的连接
-2. 处理用户消息并返回 AI 回复
-3. 维持对话上下文和连续性
-4. 满足微信公众平台的技术要求（如消息加解密）
+The data collected by this plugin is used solely for the following purposes:
+1. Enabling the connection between the WeChat Official Account and the Dify AI application.
+2. Processing user messages and returning AI responses.
+3. Maintaining conversation context and continuity.
+4. Meeting the technical requirements of the WeChat Official Account platform (such as message encryption and decryption).
 
-## 数据共享
+## Data Sharing
 
-### 第三方服务
-本插件需要与以下第三方服务交互：
+### Third-Party Services
+This plugin needs to interact with the following third-party services:
 
-- 微信公众平台
-  - 共享数据：用户消息、OpenID、AI回复内容
-  - 目的：实现公众号消息收发功能
-  - 隐私政策：[微信公众平台服务协议](https://mp.weixin.qq.com/cgi-bin/readtemplate?t=home/agreement_tmpl)
+- WeChat Official Account Platform
+  - Shared Data: User messages, OpenID, AI response content
+  - Purpose: To enable the sending and receiving of messages for the Official Account.
+  - Privacy Policy: [WeChat Official Account Service Agreement](https://mp.weixin.qq.com/cgi-bin/readtemplate?t=home/agreement_tmpl)
 
-本插件不会将您的数据分享给上述以外的任何第三方。
+This plugin will not share your data with any third parties other than those listed above.
 
-## 数据安全
+## Data Security
 
-本插件采取以下措施保护用户数据安全：
-1. 支持微信公众号消息加密模式
-2. 插件本身不保存微信用户的个人身份信息
-3. 仅在必要的时间段内临时保存处理数据
+This plugin takes the following measures to protect user data security:
+1. Supports WeChat Official Account message encryption mode.
+2. The plugin itself does not store the personal identity information of WeChat users.
+3. Only temporarily saves and processes data for the necessary period.
 
-## 用户权利
+## User Rights
 
-作为插件使用者，您有权：
-1. 了解插件如何处理用户数据
-2. 删除存储的对话历史记录（通过 Dify 平台提供的功能）
-3. 随时停用插件并删除相关配置
+As a user of the plugin, you have the right to:
+1. Understand how the plugin processes user data.
+2. Delete stored conversation history (through the functionality provided by the Dify platform).
+3. Deactivate the plugin and delete related configurations at any time.
 
-## 隐私政策更新
+## Privacy Policy Updates
 
-我们可能会不时更新本隐私政策。重大变更时，我们将通过更新版本号通知用户。
+We may update this privacy policy from time to time. In the event of significant changes, we will notify users by updating the version number.
 
-## 联系方式
+## Contact Information
 
-如对本隐私政策有任何疑问，请联系插件作者。
+If you have any questions about this privacy policy, please contact the plugin author.
 
-最后更新：2025年3月
+Last Updated: March 2025

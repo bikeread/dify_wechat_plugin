@@ -8,25 +8,25 @@ logger = logging.getLogger(__name__)
 
 
 class EventMessageHandler(MessageHandler):
-    """事件消息处理器"""
+    """event message handler"""
 
     def handle(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
         """
-        处理事件消息并返回回复内容
+        handle event message and return reply content
         
-        参数:
-            message: 要处理的微信事件消息对象
-            session: 当前会话对象，用于访问存储和AI接口
-            app_settings: 应用设置字典
+        params:
+            message: wechat event message object to handle
+            session: current session object for accessing storage and AI interface
+            app_settings: application settings dictionary
             
-        返回:
-            处理后的回复内容字符串
+        return:
+            processed reply content string
         """
-        # 获取事件类型
+        # get event type
         event_type = message.event
-        logger.info(f"接收到事件消息，事件类型: {event_type}")
+        logger.info(f"received event message, event type: {event_type}")
 
-        # 根据事件类型调用不同的处理方法
+        # call different processing methods based on event type
         if event_type == 'subscribe':
             return self._handle_subscribe_event(message, session, app_settings)
         elif event_type == 'unsubscribe':
@@ -39,17 +39,17 @@ class EventMessageHandler(MessageHandler):
             return self._handle_unknown_event(message, session, app_settings)
 
     def _handle_subscribe_event(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        """处理关注事件"""
-        logger.info(f"用户 {message.from_user} 关注了公众号")
-        # 1. 获取会话ID
-        conversation_id = self._get_conversation_id(session, self.get_storage_key(message.from_user))
+        """handle subscribe event"""
+        logger.info(f"user {message.from_user} subscribed to the public account")
+        # 1. get conversation id
+        conversation_id = self._get_conversation_id(session, self.get_storage_key(message.from_user, app_settings.get("app").get("app_id")))
         inputs = {
             "event": message.event,
             "msgType": message.msg_type,
         }
-        content = "用户关注了公众号"
+        content = "user subscribed to the public account"
 
-        # 2. 调用AI获取响应
+        # 2. invoke AI to get response
         response_generator = self._invoke_ai(
             session, 
             app_settings, 
@@ -59,46 +59,46 @@ class EventMessageHandler(MessageHandler):
             user_id=message.from_user
         )
 
-        # 3. 处理AI响应
+        # 3. process AI response
         answer = self._process_ai_response(response_generator)
 
-        # 4. 保存新的会话ID
-        self.save_conversation_id(session, message.from_user)
+        # 4. save new conversation id
+        self.save_conversation_id(session, message.from_user, app_settings.get("app").get("app_id"))
 
-        logger.info(f"处理完成，响应长度: {len(answer)}")
+        logger.info(f"processed, response length: {len(answer)}")
 
         return answer
 
     def _handle_unsubscribe_event(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        """处理取消关注事件"""
-        logger.info(f"用户 {message.from_user} 取消关注了公众号")
+        """handle unsubscribe event"""
+        logger.info(f"user {message.from_user} unsubscribed from the public account")
         # self.clear_cache(session, message.from_user)
-        # 取消关注事件无需回复
+        # unsubscribe event does not need to reply
         return ""
 
     def _handle_click_event(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        """处理菜单点击事件"""
+        """handle menu click event"""
         event_key = getattr(message, 'event_key', '')
-        logger.info(f"用户 {message.from_user} 点击了菜单，事件KEY: {event_key}")
+        logger.info(f"user {message.from_user} clicked the menu, event key: {event_key}")
 
         # 根据event_key处理不同的菜单点击事件
         if event_key == 'CLEAR_CONTEXT':
-            # 清除上下文
+            # clear context
             success = self.clear_cache(session, message.from_user)
-            return "会话上下文已清除，您可以开始新的对话。" if success else "清除会话上下文失败，请稍后再试。"
+            return "conversation context has been cleared, you can start a new conversation." if success else "failed to clear conversation context, please try again later."
         else:
-            # 可以将菜单点击事件转发给AI处理
-            return f"您点击了自定义菜单: {event_key}"
+            # forward menu click event to AI processing
+            return f"you clicked the custom menu: {event_key}"
 
     def _handle_view_event(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        """处理菜单跳转链接事件"""
+        """handle menu redirect link event"""
         event_key = getattr(message, 'event_key', '')
-        logger.info(f"用户 {message.from_user} 点击了菜单跳转链接，URL: {event_key}")
-        # 跳转链接事件通常无需回复
+        logger.info(f"user {message.from_user} clicked the menu redirect link, URL: {event_key}")
+        # redirect link event usually does not need to reply
         return ""
 
     def _handle_unknown_event(self, message: WechatMessage, session: Any, app_settings: Dict[str, Any]) -> str:
-        """处理未知类型的事件"""
+        """handle unknown event type"""
         event_type = getattr(message, 'event', 'unknown')
-        logger.warning(f"收到未处理的事件类型: {event_type}")
+        logger.warning(f"received unknown event type: {event_type}")
         return ""

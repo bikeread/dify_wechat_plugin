@@ -1,7 +1,7 @@
 from typing import Optional, Dict, Any, List
 
 class WechatMessage:
-    """微信消息实体类"""
+    """wechat message entity class"""
     def __init__(self, 
                  msg_type: str, 
                  from_user: str, 
@@ -21,35 +21,35 @@ class WechatMessage:
                  title: Optional[str] = None,
                  description: Optional[str] = None,
                  url: Optional[str] = None,
-                 # 事件相关属性
+                 # event related attributes
                  event: Optional[str] = None,
                  event_key: Optional[str] = None,
                  ticket: Optional[str] = None):
         """
-        初始化微信消息对象
+        initialize the wechat message object
         
-        参数:
-            msg_type: 消息类型 (如 'text', 'image', 'voice', 'link', 'event' 等)
-            from_user: 发送者的OpenID
-            to_user: 接收者的ID (公众号原始ID)
-            create_time: 消息创建时间
-            msg_id: 消息ID
-            content: 文本消息内容 (对文本消息有效)
-            pic_url: 图片链接 (对图片消息有效)
-            media_id: 图片或语音的媒体ID
-            format: 语音格式 (对语音消息有效)
-            recognition: 语音识别结果 (对语音消息有效)
-            thumb_media_id: 视频消息缩略图的媒体ID
-            location_x: 地理位置纬度
-            location_y: 地理位置经度
-            scale: 地图缩放大小
-            label: 地理位置信息
-            title: 消息标题 (对链接消息有效)
-            description: 消息描述 (对链接消息有效)
-            url: 消息链接 (对链接消息有效)
-            event: 事件类型 (对事件消息有效，如 'subscribe', 'CLICK' 等)
-            event_key: 事件KEY值 (对菜单点击等事件有效)
-            ticket: 二维码的ticket (对扫描带参数二维码事件有效)
+        params:
+            msg_type: message type (e.g. 'text', 'image', 'voice', 'link', 'event' etc.)
+            from_user: sender's OpenID
+            to_user: receiver's ID (original ID of the public account)
+            create_time: message creation time
+            msg_id: message ID
+            content: text message content (valid for text messages)
+            pic_url: image link (valid for image messages)
+            media_id: media ID of image or voice
+            format: voice format (valid for voice messages)
+            recognition: voice recognition result (valid for voice messages)
+            thumb_media_id: media ID of video thumbnail (valid for video messages)
+            location_x: latitude
+            location_y: longitude
+            scale: map zoom size
+            label: location information
+            title: message title (valid for link messages)
+            description: message description (valid for link messages)
+            url: message link (valid for link messages)
+            event: event type (valid for event messages, e.g. 'subscribe', 'CLICK' etc.)
+            event_key: event key value (valid for menu click events)
+            ticket: ticket of QR code (valid for scanning QR code with parameters)
         """
         self.msg_type = msg_type
         self.from_user = from_user
@@ -57,38 +57,38 @@ class WechatMessage:
         self.create_time = create_time
         self.msg_id = msg_id
         
-        # 文本消息特有属性
+        # text message specific attributes
         self.content = content
         
-        # 图片消息特有属性
+        # image message specific attributes
         self.pic_url = pic_url
         self.media_id = media_id
         
-        # 语音消息特有属性
+        # voice message specific attributes
         self.format = format
         self.recognition = recognition
         
-        # 视频消息特有属性
+        # video message specific attributes
         self.thumb_media_id = thumb_media_id
         
-        # 地理位置消息特有属性
+        # location message specific attributes
         self.location_x = location_x
         self.location_y = location_y
         self.scale = scale
         self.label = label
         
-        # 链接消息特有属性
+        # link message specific attributes
         self.title = title
         self.description = description
         self.url = url
         
-        # 事件消息特有属性
+        # event message specific attributes
         self.event = event
         self.event_key = event_key
         self.ticket = ticket
     
     def __str__(self) -> str:
-        """返回消息的字符串表示"""
+        """return the string representation of the message"""
         if self.msg_type == 'text':
             return f"WechatMessage(type={self.msg_type}, from={self.from_user}, content={self.content})"
         elif self.msg_type == 'image':
