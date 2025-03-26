@@ -5,7 +5,7 @@ plugin = Plugin(DifyPluginEnv(MAX_REQUEST_TIMEOUT=120))
 
 # global logging configuration
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler()  # output to the console
