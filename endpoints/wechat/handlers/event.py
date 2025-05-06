@@ -84,7 +84,7 @@ class EventMessageHandler(MessageHandler):
         # 根据event_key处理不同的菜单点击事件
         if event_key == 'CLEAR_CONTEXT':
             # clear context
-            success = self.clear_cache(session, message.from_user)
+            success = self.clear_cache(session, message.from_user, app_settings.get("app").get("app_id"))
             return "conversation context has been cleared, you can start a new conversation." if success else "failed to clear conversation context, please try again later."
         else:
             # forward menu click event to AI processing

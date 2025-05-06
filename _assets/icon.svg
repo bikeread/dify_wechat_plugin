@@ -1,31 +1,59 @@
 <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <!-- 渐变定义 -->
+
+  <!-- Definitions FIRST (including styles) -->
   <defs>
+    <!-- Gradient Definition -->
     <linearGradient id="linkGradient" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#1E90FF"/>  <!-- 科技蓝 -->
-      <stop offset="50%" stop-color="#4CAF50"/>  <!-- 过渡色 -->
-      <stop offset="100%" stop-color="#07C160"/>  <!-- 微信绿 -->
+      <stop offset="0%" stop-color="#1E90FF"/>
+      <stop offset="50%" stop-color="#35A55A"/>
+      <stop offset="100%" stop-color="#07C160"/>
     </linearGradient>
+
+    <!-- CSS Styles -->
+    <style>
+      #wechatRect {
+        transform-origin: center;
+      }
+    </style>
   </defs>
 
-  <!-- Dify 侧 (左侧 AI 线路) -->
-  <circle cx="20" cy="30" r="5" fill="#1E90FF"/> <!-- 科技蓝 -->
-  <circle cx="40" cy="50" r="5" fill="#1E90FF"/>
-  <circle cx="20" cy="70" r="5" fill="#1E90FF"/>
-  <line x1="20" y1="30" x2="40" y2="50" stroke="#1E90FF" stroke-width="3"/>
-  <line x1="20" y1="70" x2="40" y2="50" stroke="#1E90FF" stroke-width="3"/>
+  <!-- Background Rectangle - Using Light Grey -->
+  <rect width="100%" height="100%" fill="#e9e9ed" /> <!-- Light Grey Background -->
 
-  <!-- 连接桥梁（优化为直线） -->
-  <line x1="45" y1="50" x2="60" y2="50"
+  <!-- Dify Side (Shifted Left) -->
+  <circle cx="10" cy="30" r="5" fill="#1E90FF">
+    <animate attributeName="r" values="5; 5.5; 5" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+  </circle>
+  <circle cx="35" cy="50" r="6" fill="#1E90FF">
+     <animate attributeName="r" values="6; 6.8; 6" dur="1.5s" repeatCount="indefinite" begin="0.2s"/>
+  </circle>
+  <circle cx="10" cy="70" r="5" fill="#1E90FF">
+     <animate attributeName="r" values="5; 5.5; 5" dur="1.5s" repeatCount="indefinite" begin="0.4s"/>
+  </circle>
+
+  <!-- Curved paths connecting nodes (Shifted Left) -->
+  <path d="M 14 33 Q 25 40 31 46" stroke="#1E90FF" stroke-width="3.5" fill="none"/>
+  <path d="M 14 67 Q 25 60 31 54" stroke="#1E90FF" stroke-width="3.5" fill="none"/>
+
+  <!-- Connecting Bridge (Comment moved OUTSIDE the tag) -->
+  <!-- Path starts near middle blue node (cx=35) and ends near green rect (x=68) -->
+  <path d="M 41 50 Q 54 47 67 50"
         stroke="url(#linkGradient)"
-        stroke-width="3"
-        stroke-dasharray="5 3"/>
+        stroke-width="4"
+        fill="none"
+        stroke-linecap="round"
+        stroke-dasharray="6 4">
+    <animate attributeName="stroke-dashoffset" from="10" to="0" dur="0.8s" repeatCount="indefinite"/>
+  </path>
 
-  <!-- 微信公众号侧 (单个加大文章框) -->
-  <rect x="60" y="40" width="35" height="25" rx="5" fill="#07C160"/> <!-- 放大的公众号文章框 -->
+  <!-- WeChat Official Account Side (Remains in the same position) -->
+  <g>
+      <rect id="wechatRect" x="68" y="38" width="28" height="24" rx="8" ry="8" fill="#07C160">
+         <animateTransform attributeName="transform" type="scale" values="1; 1.03; 1" dur="1.8s" repeatCount="indefinite" additive="sum" begin="0.5s"/>
+      </rect>
+      <rect x="72" y="44" width="20" height="2.5" fill="white" rx="1"/>
+      <rect x="72" y="50" width="16" height="2.5" fill="white" rx="1"/>
+      <rect x="72" y="56" width="18" height="2.5" fill="white" rx="1"/>
+  </g>
 
-  <!-- 公众号文章中的小横条，代表文字 -->
-  <rect x="65" y="45" width="25" height="3" fill="white"/>
-  <rect x="65" y="52" width="20" height="3" fill="white"/>
-  <rect x="65" y="59" width="15" height="3" fill="white"/>
 </svg>

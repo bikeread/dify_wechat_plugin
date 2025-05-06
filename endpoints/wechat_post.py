@@ -64,7 +64,7 @@ class WechatPost(Endpoint):
             handler = MessageHandlerFactory.get_handler(message.msg_type)
             # if the clear history instruction is received
             if message.content == CLEAR_HISTORY_MESSAGE:
-                success = handler.clear_cache(self.session, message.from_user)
+                success = handler.clear_cache(self.session, message.from_user, settings.get("app").get("app_id"))
                 
                 # return the clear result
                 result_message = "history chat records have been cleared" if success else "failed to clear history records, please try again later"

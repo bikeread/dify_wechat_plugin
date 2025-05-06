@@ -3,6 +3,7 @@
 **Author:** bikeread  
 **Version:** 0.0.2  
 **Type:** extension  
+**GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
 ## Overview
 
@@ -68,57 +69,58 @@ Optional Settings:
 
 This plugin supports multiple types of messages that your users can send to your WeChat Official Account:
 
-1. **Text Messages**
-   - Users can send regular text messages
-   - Relevant input parameters:
-     ```
-     msgId: Unique message ID
-     msgType: Message type ("text")
-     fromUser: Sender's OpenID
-     createTime: Message creation timestamp
-     content: The text message content
-     ```
+#### 1. Text Messages
+- Users can send regular text messages
+- Relevant input parameters:
+  ```
+  msgId: Unique message ID
+  msgType: Message type ("text")
+  fromUser: Sender's OpenID
+  createTime: Message creation timestamp
+  content: The text message content
+  ```
 
-2. **Image Messages**
-   - Users can send image content
-   - The system provides image URL to AI for processing
-   - Relevant input parameters:
-     ```
-     msgId: Unique message ID
-     msgType: Message type ("image")
-     fromUser: Sender's OpenID
-     createTime: Message creation timestamp
-     picUrl: URL of the image sent by user
-     ```
+#### 2. Image Messages
+- Users can send image content
+- The system provides image URL to AI for processing
+- Relevant input parameters:
+  ```
+  msgId: Unique message ID
+  msgType: Message type ("image")
+  fromUser: Sender's OpenID
+  createTime: Message creation timestamp
+  picUrl: URL of the image sent by user
+  ```
 
-3. **Voice Messages**
-   - Users can send voice recordings
-   - The system converts voice to base64 format for AI processing
-   - Relevant input parameters:
-     ```
-     msgId: Unique message ID
-     msgType: Message type ("voice")
-     fromUser: Sender's OpenID
-     createTime: Message creation timestamp
-     media_id: WeChat media ID for the voice
-     voice_base64: Base64 encoded voice data
-     voice_media_type: Media type of the voice
-     voice_format: Format of the voice (default "amr")
-     ```
+#### 3. Voice Messages
+- Users can send voice recordings
+- The system converts voice to base64 format for AI processing
+- Relevant input parameters:
+  ```
+  msgId: Unique message ID
+  msgType: Message type ("voice")
+  fromUser: Sender's OpenID
+  createTime: Message creation timestamp
+  media_id: WeChat media ID for the voice
+  voice_base64: Base64 encoded voice data
+  voice_media_type: Media type of the voice
+  voice_format: Format of the voice (default "amr")
+  ```
 
-4. **Link Messages**
-   - Users can share links to articles/websites
-   - The system extracts link information for AI processing
-   - Relevant input parameters:
-     ```
-     msgId: Unique message ID
-     msgType: Message type ("link")
-     fromUser: Sender's OpenID
-     createTime: Message creation timestamp
-     url: The shared URL
-     title: Title of the shared link
-     description: Description of the shared link
-     ```
+#### 4. Link Messages
+- Users can share links to articles/websites
+- The system extracts link information for AI processing
+- Relevant input parameters:
+  ```
+  msgId: Unique message ID
+  msgType: Message type ("link")
+  fromUser: Sender's OpenID
+  createTime: Message creation timestamp
+  url: The shared URL
+  title: Title of the shared link
+  description: Description of the shared link
+  ```
+
 Your Dify application can access all these parameters in the conversation context and respond accordingly.
 
 ## Technical Architecture

@@ -35,7 +35,7 @@ class MessageHandler(ABC):
         """
         pass
 
-    def clear_cache(self, session: Any, user_id: str) -> bool:
+    def clear_cache(self, session: Any, user_id: str, app_id: str) -> bool:
         """
         clear cache for specified user
         
@@ -48,7 +48,7 @@ class MessageHandler(ABC):
         """
         try:
             # construct storage key
-            storage_key = f"wechat_conv_{user_id}"
+            storage_key = self.get_storage_key(user_id, app_id)
             logger.info(f"preparing to clear cache for user '{user_id}', storage key: '{storage_key}'")
 
             # delete session data
