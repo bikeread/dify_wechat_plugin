@@ -243,7 +243,7 @@ class MessageHandler(ABC):
     def save_conversation_id(self, session: Any, user_id: str, app_id: str) -> None:
         """save conversation id"""
         if self.new_conversation_id and self.new_conversation_id != self.initial_conversation_id:
-            storage_key = self.get_storage_key(user_id, app.get("app").get("app_id"))
+            storage_key = self.get_storage_key(user_id, app_id)
             try:
                 session.storage.set(storage_key, self.new_conversation_id.encode('utf-8'))
                 logger.info(f"saved new conversation id for user '{user_id}'")
