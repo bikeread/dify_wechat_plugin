@@ -1,7 +1,7 @@
 # Dify WeChat Official Account Plugin
 
 **Author:** bikeread  
-**Version:** 0.0.2  
+**Version:** 0.0.3  
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
