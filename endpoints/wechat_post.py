@@ -300,13 +300,14 @@ class WechatPost(Endpoint):
             # check if the configuration has the parameters required for customer message
             app_id = settings.get('app_id')
             app_secret = settings.get('app_secret')
+            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
             
             if not app_id or not app_secret:
                 logger.error("customer message: missing app_id or app_secret configuration")
                 return
 
             # initialize the customer message sender and send the message
-            sender = WechatCustomMessageSender(app_id, app_secret)
+            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
             logger.debug(f"customer message: sending to user {message.from_user}, content length: {len(content)}")
             
             send_result = sender.send_text_message(
