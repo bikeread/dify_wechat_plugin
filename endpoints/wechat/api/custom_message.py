@@ -11,16 +11,18 @@ class WechatCustomMessageSender:
     
     TOKEN_CACHE = {}  # for caching access token
     
-    def __init__(self, app_id: str, app_secret: str):
+    def __init__(self, app_id: str, app_secret: str, api_base_url: str = None):
         """
         initialize custom message sender
         
         params:
             app_id: wechat public account app id
             app_secret: wechat public account app secret
+            api_base_url: wechat api base url, default is api.weixin.qq.com
         """
         self.app_id = app_id
         self.app_secret = app_secret
+        self.api_base_url = api_base_url or "api.weixin.qq.com"
     
     def _get_access_token(self) -> str:
         """
@@ -41,7 +43,7 @@ class WechatCustomMessageSender:
                 return token_info['token']
         
         # request new access token
-        url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={self.app_id}&secret={self.app_secret}"
+        url = f"https://{self.api_base_url}/cgi-bin/token?grant_type=client_credential&appid={self.app_id}&secret={self.app_secret}"
         
         try:
             response = requests.get(url, timeout=10)
@@ -84,7 +86,7 @@ class WechatCustomMessageSender:
             access_token = self._get_access_token()
             
             # build request url
-            url = f"https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={access_token}"
+            url = f"https://{self.api_base_url}/cgi-bin/message/custom/send?access_token={access_token}"
             
             # build request data
             data = {
@@ -125,4 +127,4 @@ class WechatCustomMessageSender:
             return {
                 'success': False,
                 'error': str(e)
-            } 
+            }

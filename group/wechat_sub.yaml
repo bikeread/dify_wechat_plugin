@@ -6,6 +6,12 @@ settings:
     label:
       en_US: App
       zh_Hans: App
+  - name: wechat_api_proxy_url
+    type: text-input
+    required: false
+    label:
+      en_US: Wechat API Proxy URL
+      zh_Hans: 微信API代理地址(可选,默认api.weixin.qq.com)
   - name: wechat_token
     type: secret-input
     required: true

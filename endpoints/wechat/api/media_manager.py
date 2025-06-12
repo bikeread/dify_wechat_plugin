@@ -14,7 +14,7 @@ class MediaStrategy:
     """media resource get strategy base class"""
     
     @staticmethod
-    def get_media_url(access_token: str, media_id: str) -> str:
+    def get_media_url(access_token: str, media_id: str, api_base_url: str = "api.weixin.qq.com") -> str:
         """get media resource url base method"""
         raise NotImplementedError("subclass must implement this method")
         
@@ -28,8 +28,8 @@ class NormalMediaStrategy(MediaStrategy):
     """normal temporary media resource get strategy"""
     
     @staticmethod
-    def get_media_url(access_token: str, media_id: str) -> str:
-        return f"https://api.weixin.qq.com/cgi-bin/media/get?access_token={access_token}&media_id={media_id}"
+    def get_media_url(access_token: str, media_id: str, api_base_url: str = "api.weixin.qq.com") -> str:
+        return f"https://{api_base_url}/cgi-bin/media/get?access_token={access_token}&media_id={media_id}"
     
     @staticmethod
     def process_response(response: requests.Response) -> Dict[str, Any]:
@@ -83,8 +83,8 @@ class JssdkMediaStrategy(MediaStrategy):
     """jssdk high definition voice material get strategy"""
     
     @staticmethod
-    def get_media_url(access_token: str, media_id: str) -> str:
-        return f"https://api.weixin.qq.com/cgi-bin/media/get/jssdk?access_token={access_token}&media_id={media_id}"
+    def get_media_url(access_token: str, media_id: str, api_base_url: str = "api.weixin.qq.com") -> str:
+        return f"https://{api_base_url}/cgi-bin/media/get/jssdk?access_token={access_token}&media_id={media_id}"
     
     @staticmethod
     def process_response(response: requests.Response) -> Dict[str, Any]:
@@ -150,16 +150,18 @@ class MediaStrategyFactory:
 class WechatMediaManager:
     """wechat media resource manager"""
     
-    def __init__(self, app_id: str, app_secret: str, storage=None):
+    def __init__(self, app_id: str, app_secret: str, api_base_url: str = None, storage=None):
         """
         initialize media resource manager
         
         params:
             app_id: wechat public account app id
             app_secret: wechat public account app secret
+            api_base_url: wechat api base url, default is api.weixin.qq.com
             storage: storage object, used to cache access token
         """
-        self.message_sender = WechatCustomMessageSender(app_id, app_secret, storage)
+        self.api_base_url = api_base_url or "api.weixin.qq.com"
+        self.message_sender = WechatCustomMessageSender(app_id, app_secret, api_base_url)
     
     def get_media(self, media_id: str, media_type: str = 'normal') -> Dict[str, Any]:
         """
@@ -183,7 +185,7 @@ class WechatMediaManager:
             strategy = MediaStrategyFactory.create_strategy(media_type)
             
             # build request url
-            url = strategy.get_media_url(access_token, media_id)
+            url = strategy.get_media_url(access_token, media_id, self.api_base_url)
             
             # send request
             response = requests.get(url, timeout=30, stream=True)
@@ -254,4 +256,4 @@ class WechatMediaManager:
             return {
                 'success': False,
                 'error': str(e)
-            } 
+            }

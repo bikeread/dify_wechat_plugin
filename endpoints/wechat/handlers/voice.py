@@ -23,6 +23,7 @@ class VoiceMessageHandler(MessageHandler):
         # 微信公众号配置
         app_id = app_settings.get("app_id")
         app_secret = app_settings.get("app_secret")
+        wechat_api_proxy_url = app_settings.get("wechat_api_proxy_url")
         logger.info("application configuration: %s", app_settings)
         if not app_id or not app_secret:
             logger.error("missing wechat public account configuration")
@@ -49,7 +50,7 @@ class VoiceMessageHandler(MessageHandler):
         
         # get voice file content
         try:
-            media_manager = WechatMediaManager(app_id, app_secret, session.storage)
+            media_manager = WechatMediaManager(app_id, app_secret, wechat_api_proxy_url, session.storage)
             
             # check if using high-quality voice
             media_type = "jssdk" if message.format == "speex" else "normal"
