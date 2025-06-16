@@ -1,7 +1,9 @@
 # Dify WeChat Official Account Plugin
 
+**Language:** [English](README.md) | [中文](README_zh.md)
+
 **Author:** bikeread  
-**Version:** 0.0.3  
+**Version:** 0.0.4  
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
@@ -21,6 +23,7 @@ The Dify WeChat Official Account Plugin is designed for content creators and pub
    - **EncodingAESKey**: Copy from your WeChat Official Account platform
    - **AppID**: Your Official Account's AppID
    - **AppSecret**: Your Official Account's AppSecret
+   - **WeChat API Proxy URL**: (Optional) Custom WeChat API proxy address (default: api.weixin.qq.com, do not include https://, http is not supported)
    - **Timeout Message**: A message to show when response takes longer than 15 seconds
 
 > **Note**: The timeout message is important because WeChat requires a response within 15 seconds. If your AI application takes longer to generate a complete response:
@@ -62,6 +65,7 @@ Customer Service Message Support:
 
 Optional Settings:
 - `timeout_message`: Temporary response message for timeout situations
+- `wechat_api_proxy_url`: Custom WeChat API proxy address (default: api.weixin.qq.com)
 
 ## Advanced Usage
 

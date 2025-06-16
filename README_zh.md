@@ -1,0 +1,158 @@
+# Dify 微信公众号插件
+
+**语言：** [English](README.md) | [中文](README_zh.md)
+
+**作者：** bikeread  
+**版本：** 0.0.4  
+**类型：** 扩展插件  
+**GitHub：** [代码仓库](https://github.com/bikeread/dify_wechat_plugin) | [问题反馈](https://github.com/bikeread/dify_wechat_plugin/issues)
+
+## 概述
+
+Dify 微信公众号插件专为内容创作者和公众号运营者设计，旨在将AI能力集成到微信公众号中。它提供24/7智能客服和内容辅助功能。
+
+## 快速配置指南
+
+### 步骤1：配置插件
+
+1. 安装插件后，创建一个新的endpoint
+2. 配置以下设置：
+   - **Endpoint名称**：任意您喜欢的名称
+   - **APP**：选择处理用户消息的Dify应用
+   - **微信Token**：从您的微信公众号平台复制
+   - **EncodingAESKey**：从您的微信公众号平台复制
+   - **AppID**：您公众号的AppID
+   - **AppSecret**：您公众号的AppSecret
+   - **微信API代理地址**：（可选）自定义微信API代理地址（默认：api.weixin.qq.com，不要包含https://，不支持http）
+   - **超时消息**：当响应时间超过15秒时显示的消息
+
+> **注意**：超时消息很重要，因为微信要求在15秒内响应。如果您的AI应用生成完整响应需要更长时间：
+> - 超时消息将作为即时响应发送
+> - 如果配置了AppID和AppSecret，完整的AI响应将通过微信客服消息API发送
+> - 请确保您的公众号有发送客服消息的权限
+
+### 步骤2：配置微信公众号
+
+1. 登录微信公众平台 (https://mp.weixin.qq.com/)
+2. 进入"设置与开发" -> "基本配置"
+3. 在"服务器配置"下：
+   - 从插件配置中复制两个endpoint URL中的任意一个
+   - 粘贴到"服务器地址(URL)"字段
+   - 设置与插件中相同的Token
+   - 选择消息加解密方式（明文模式或安全模式）
+   - 如果使用安全模式，设置与插件中相同的EncodingAESKey
+4. 点击"提交"保存配置
+
+![配置示例](img.png)
+
+### 步骤3：验证配置
+
+1. 保存插件和微信配置后
+2. 向您的公众号发送测试消息
+3. 如果收到AI响应，说明配置成功
+
+## 插件配置
+
+必需设置：
+- `wechat_token`：与微信公众号中配置的token相同
+
+加密模式设置：
+- `encoding_aes_key`：与微信公众号中的EncodingAESKey相同
+- `app_id`：您公众号的AppID
+
+客服消息支持：
+- `app_secret`：您公众号的AppSecret
+
+可选设置：
+- `timeout_message`：超时情况下的临时响应消息
+- `wechat_api_proxy_url`：自定义微信API代理地址（默认：api.weixin.qq.com）
+
+## 高级用法
+
+### 支持的消息类型
+
+此插件支持用户向您的微信公众号发送的多种消息类型：
+
+#### 1. 文本消息
+- 用户可以发送常规文本消息
+- 相关输入参数：
+  ```
+  msgId: 唯一消息ID
+  msgType: 消息类型 ("text")
+  fromUser: 发送者的OpenID
+  createTime: 消息创建时间戳
+  content: 文本消息内容
+  ```
+
+#### 2. 图片消息
+- 用户可以发送图片内容
+- 系统向AI提供图片URL进行处理
+- 相关输入参数：
+  ```
+  msgId: 唯一消息ID
+  msgType: 消息类型 ("image")
+  fromUser: 发送者的OpenID
+  createTime: 消息创建时间戳
+  picUrl: 用户发送的图片URL
+  ```
+
+#### 3. 语音消息
+- 用户可以发送语音录音
+- 系统将语音转换为base64格式供AI处理
+- 相关输入参数：
+  ```
+  msgId: 唯一消息ID
+  msgType: 消息类型 ("voice")
+  fromUser: 发送者的OpenID
+  createTime: 消息创建时间戳
+  media_id: 微信语音媒体ID
+  voice_base64: Base64编码的语音数据
+  voice_media_type: 语音媒体类型
+  voice_format: 语音格式（默认 "amr"）
+  ```
+
+#### 4. 链接消息
+- 用户可以分享文章/网站链接
+- 系统提取链接信息供AI处理
+- 相关输入参数：
+  ```
+  msgId: 唯一消息ID
+  msgType: 消息类型 ("link")
+  fromUser: 发送者的OpenID
+  createTime: 消息创建时间戳
+  url: 分享的URL
+  title: 分享链接的标题
+  description: 分享链接的描述
+  ```
+
+您的Dify应用可以在对话上下文中访问所有这些参数并做出相应响应。
+
+## 技术架构
+
+此插件采用模块化设计，包含以下主要组件：
+
+### 目录结构
+```
+endpoints/
+├── wechat/                    # 核心微信处理模块
+│   ├── __init__.py            # 包初始化
+│   ├── models.py              # WechatMessage模型定义
+│   ├── parsers.py             # XML解析器定义
+│   ├── formatters.py          # 响应格式化器定义
+│   ├── factory.py             # 消息处理器工厂
+│   ├── crypto.py              # 微信消息加密工具
+│   ├── retry_tracker.py       # 消息重试跟踪器
+│   ├── api/                   # API相关
+│   │   ├── __init__.py        # API包初始化
+│   │   └── custom_message.py  # 客服消息发送器
+│   └── handlers/              # 消息处理器
+│       ├── __init__.py        # 处理器包初始化
+│       ├── base.py            # 抽象处理器基类
+│       ├── text.py            # 文本消息处理器
+│       ├── image.py           # 图片消息处理器
+│       ├── voice.py           # 语音消息处理器
+│       ├── link.py            # 链接消息处理器
+│       └── unsupported.py     # 不支持的消息类型处理器
+├── wechat_get.py              # 处理微信服务器验证
+└── wechat_post.py             # 处理用户消息
+``` 
