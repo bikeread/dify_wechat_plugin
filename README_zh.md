@@ -1,11 +1,19 @@
 # Dify 微信公众号插件
 
+⭐ **如果这个插件对您有帮助，请给个Star支持一下！** ⭐
+
 **语言：** [English](README.md) | [中文](README_zh.md)
 
 **作者：** bikeread  
 **版本：** 0.0.4  
 **类型：** 扩展插件  
 **GitHub：** [代码仓库](https://github.com/bikeread/dify_wechat_plugin) | [问题反馈](https://github.com/bikeread/dify_wechat_plugin/issues)
+
+---
+
+> 🚀 **喜欢这个项目？** 在 GitHub 上给它一个 ⭐ 来表示支持！  
+> 💡 **觉得有用？** 点个星标帮助更多人发现它！  
+> 🎯 **想要更新通知？** 点击 Star 和 Watch 获取新功能推送！
 
 ## 概述
 
@@ -50,6 +58,8 @@ Dify 微信公众号插件专为内容创作者和公众号运营者设计，旨
 1. 保存插件和微信配置后
 2. 向您的公众号发送测试消息
 3. 如果收到AI响应，说明配置成功
+
+> 🎉 **成功了！** 如果一切正常工作，请考虑给这个项目点个 ⭐ 帮助更多人发现它！
 
 ## 插件配置
 
@@ -155,4 +165,22 @@ endpoints/
 │       └── unsupported.py     # 不支持的消息类型处理器
 ├── wechat_get.py              # 处理微信服务器验证
 └── wechat_post.py             # 处理用户消息
-``` 
+```
+
+---
+
+## 🌟 支持这个项目
+
+如果您觉得这个插件有帮助，请考虑：
+
+- ⭐ **给仓库点个星** 表示您的支持
+- 🐛 **反馈问题** 帮助改进插件
+- 💡 **建议功能** 参与未来开发
+- 📢 **分享给其他人** 让更多人受益
+- 🤝 **提交贡献** 发送 Pull Request
+
+**您的支持是持续开发和改进的动力！**
+
+[![GitHub stars](https://img.shields.io/github/stars/bikeread/dify_wechat_plugin.svg?style=social&label=Star)](https://github.com/bikeread/dify_wechat_plugin)
+[![GitHub forks](https://img.shields.io/github/forks/bikeread/dify_wechat_plugin.svg?style=social&label=Fork)](https://github.com/bikeread/dify_wechat_plugin)
+[![GitHub issues](https://img.shields.io/github/issues/bikeread/dify_wechat_plugin.svg)](https://github.com/bikeread/dify_wechat_plugin/issues) 

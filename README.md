@@ -1,11 +1,19 @@
 # Dify WeChat Official Account Plugin
 
+⭐ **If this plugin helps you, please give it a star!** ⭐
+
 **Language:** [English](README.md) | [中文](README_zh.md)
 
 **Author:** bikeread  
 **Version:** 0.0.4  
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
+
+---
+
+> 🚀 **Love this project?** Show your support by giving it a ⭐ on GitHub!  
+> 💡 **Found it useful?** Help others discover it by starring the repository!  
+> 🎯 **Want updates?** Star and watch to get notified of new features!
 
 ## Overview
 
@@ -50,6 +58,8 @@ The Dify WeChat Official Account Plugin is designed for content creators and pub
 1. After saving both plugin and WeChat configurations
 2. Send a test message to your Official Account
 3. If you receive an AI response, the configuration is successful
+
+> 🎉 **Success!** If everything works perfectly, consider giving this project a ⭐ to help others find it!
 
 ## Plugin Configuration
 
@@ -156,3 +166,21 @@ endpoints/
 ├── wechat_get.py              # Handle WeChat server verification
 └── wechat_post.py             # Handle user messages
 ```
+
+---
+
+## 🌟 Support This Project
+
+If you find this plugin helpful, please consider:
+
+- ⭐ **Star this repository** to show your support
+- 🐛 **Report issues** to help improve the plugin
+- 💡 **Suggest features** for future development
+- 📢 **Share with others** who might benefit from it
+- 🤝 **Contribute** by submitting pull requests
+
+**Your support motivates continued development and improvement!**
+
+[![GitHub stars](https://img.shields.io/github/stars/bikeread/dify_wechat_plugin.svg?style=social&label=Star)](https://github.com/bikeread/dify_wechat_plugin)
+[![GitHub forks](https://img.shields.io/github/forks/bikeread/dify_wechat_plugin.svg?style=social&label=Fork)](https://github.com/bikeread/dify_wechat_plugin)
+[![GitHub issues](https://img.shields.io/github/issues/bikeread/dify_wechat_plugin.svg)](https://github.com/bikeread/dify_wechat_plugin/issues)
