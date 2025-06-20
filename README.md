@@ -33,14 +33,30 @@ The Dify WeChat Official Account Plugin is designed for content creators and pub
 
 1. After installing the plugin, create a new endpoint
 2. Configure the following settings:
+
+#### Required Settings
    - **Endpoint Name**: Any name you prefer
    - **APP**: Select the Dify application that will handle user messages
-   - **WeChat Token**: Copy from your WeChat Official Account platform
-   - **EncodingAESKey**: Copy from your WeChat Official Account platform
    - **AppID**: Your Official Account's AppID
+   - **WeChat Token**: Copy from your WeChat Official Account platform
+
+#### Encryption Mode Settings (Optional)
+   - **EncodingAESKey**: Copy from your WeChat Official Account platform (leave empty if not configured)
    - **AppSecret**: Your Official Account's AppSecret
-   - **WeChat API Proxy URL**: (Optional) Custom WeChat API proxy address (default: api.weixin.qq.com, do not include https://, http is not supported)
-   - **Timeout Message**: A message to show when response takes longer than 15 seconds
+
+#### Timeout & Response Settings (Optional)
+   - **Timeout Message**: A message to show when response takes longer than 15 seconds (default: "内容生成耗时较长，请稍等...")
+   - **Retry Wait Timeout Ratio**: Retry wait timeout ratio between 0.1-1.0 (default: 0.7)
+
+#### Customer Service Message Mode (Optional)
+   - **Enable Custom Message**: Enable customer service messages (requires customer service message permission, default: false)
+
+#### Interactive Waiting Mode (Optional, only effective when custom message is disabled)
+   - **Continue Waiting Message**: Continue waiting prompt message (default: "生成答复中，继续等待请回复1")
+   - **Max Continue Count**: Maximum continue waiting count (default: 2)
+
+#### Network Settings (Optional)
+   - **WeChat API Proxy URL**: Custom WeChat API proxy address (default: api.weixin.qq.com, do not include https://, http is not supported)
 
 > **Note**: The timeout message is important because WeChat requires a response within 15 seconds. If your AI application takes longer to generate a complete response:
 > - The timeout message will be sent as an immediate response
