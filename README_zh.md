@@ -85,31 +85,6 @@ Dify 微信公众号插件专为内容创作者和公众号运营者设计，旨
 
 > 🎉 **成功了！** 如果一切正常工作，请考虑给这个项目点个 ⭐ 帮助更多人发现它！
 
-## 插件配置
-
-### 必需设置
-- `app`：选择处理用户消息的Dify应用
-- `app_id`：您公众号的AppID
-- `wechat_token`：与微信公众号中配置的token相同
-
-### 加密模式设置（可选）
-- `encoding_aes_key`：与微信公众号中的EncodingAESKey相同（未配置则留空）
-- `app_secret`：您公众号的AppSecret
-
-### 超时与响应设置
-- `timeout_message`：超时情况下的临时响应消息（默认："内容生成耗时较长，请稍等..."）
-- `retry_wait_timeout_ratio`：重试等待超时系数，范围0.1-1.0（默认：0.7）
-
-### 客服消息模式（可选）
-- `enable_custom_message`：启用客服消息（需要客服消息权限，默认：false）
-
-### 交互式等待模式（可选，仅在未启用客服消息时生效）
-- `continue_waiting_message`：继续等待提示消息（默认："生成答复中，继续等待请回复1"）
-- `max_continue_count`：最大继续等待次数（默认：2）
-
-### 网络设置（可选）
-- `wechat_api_proxy_url`：自定义微信API代理地址（默认：api.weixin.qq.com，不要包含https://，不支持http）
-
 ## 高级用法
 
 ### 支持的消息类型

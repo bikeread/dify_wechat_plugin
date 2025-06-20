@@ -85,31 +85,6 @@ The Dify WeChat Official Account Plugin is designed for content creators and pub
 
 > 🎉 **Success!** If everything works perfectly, consider giving this project a ⭐ to help others find it!
 
-## Plugin Configuration
-
-### Required Settings
-- `app`: Select the Dify application that will handle user messages
-- `app_id`: Your Official Account's AppID
-- `wechat_token`: Same token as configured in your WeChat Official Account
-
-### Encryption Mode Settings (Optional)
-- `encoding_aes_key`: Same as EncodingAESKey in your WeChat Official Account (leave empty if not configured)
-- `app_secret`: Your Official Account's AppSecret
-
-### Timeout & Response Settings
-- `timeout_message`: Temporary response message for timeout situations (default: "内容生成耗时较长，请稍等...")
-- `retry_wait_timeout_ratio`: Retry wait timeout ratio between 0.1-1.0 (default: 0.7)
-
-### Customer Service Message Mode (Optional)
-- `enable_custom_message`: Enable customer service messages (requires customer service message permission, default: false)
-
-### Interactive Waiting Mode (Optional, only effective when custom message is disabled)
-- `continue_waiting_message`: Continue waiting prompt message (default: "生成答复中，继续等待请回复1")
-- `max_continue_count`: Maximum continue waiting count (default: 2)
-
-### Network Settings (Optional)
-- `wechat_api_proxy_url`: Custom WeChat API proxy address (default: api.weixin.qq.com, do not include https://, http is not supported)
-
 ## Advanced Usage
 
 ### Supported Message Types
