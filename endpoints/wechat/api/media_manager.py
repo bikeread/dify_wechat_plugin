@@ -7,7 +7,14 @@ from typing import Dict, Any, Optional, Union, BinaryIO
 
 from .custom_message import WechatCustomMessageSender
 
+# 导入 logging 和自定义处理器
+import logging
+from dify_plugin.config.logger_format import plugin_logger_handler
+
+# 使用自定义处理器设置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(plugin_logger_handler)
 
 
 class MediaStrategy:

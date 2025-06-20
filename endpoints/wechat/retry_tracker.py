@@ -5,7 +5,14 @@ from typing import Dict, Any, Optional, Union
 
 from .models import WechatMessage
 
+# 导入 logging 和自定义处理器
+import logging
+from dify_plugin.config.logger_format import plugin_logger_handler
+
+# 使用自定义处理器设置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(plugin_logger_handler)
 
 class MessageStatusTracker:
     """
@@ -234,7 +241,11 @@ class MessageStatusTracker:
             'completion_event': threading.Event(),
             'retry_count': 0,
             'result_returned': False,  # mark if the result has been sent
-            'lock': threading.Lock()   # each message independent lock
+            'lock': threading.Lock(),   # each message independent lock
+            # 新增继续请求相关字段
+            'is_continue_request': False,      # 是否为继续请求
+            'continue_round': 0,               # 继续轮次
+            'parent_message_id': None,         # 父消息ID（原始消息）
         }
     
     @classmethod

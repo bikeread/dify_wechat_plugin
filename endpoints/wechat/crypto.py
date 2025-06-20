@@ -10,7 +10,14 @@ import xml.etree.ElementTree as ET
 import socket
 import logging
 
+# 导入 logging 和自定义处理器
+import logging
+from dify_plugin.config.logger_format import plugin_logger_handler
+
+# 使用自定义处理器设置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(plugin_logger_handler)
 
 class PKCS7Encoder:
     """provide encryption and decryption interfaces based on PKCS7 algorithm"""
@@ -345,6 +352,8 @@ class WechatMessageCryptoAdapter:
         return:
             encrypted XML or JSON string
         """
+
+        logger.info(f"reply_msg: {reply_msg}")
         # plaintext mode returns directly
         if not self.is_encrypted_mode:
             return reply_msg
@@ -369,7 +378,8 @@ class WechatMessageCryptoAdapter:
             return reply_msg
             
         try:
-            return self.crypto.encrypt_message(reply_msg, nonce, timestamp, format)
+            encrypted_msg = self.crypto.encrypt_message(reply_msg, nonce, timestamp, format)
+            return encrypted_msg
         except Exception as e:
             logger.error(f"failed to encrypt message: {str(e)}")
             # return plaintext when encryption fails, to avoid the response failure

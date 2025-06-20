@@ -4,7 +4,14 @@ import requests
 import time
 from typing import Dict, Any, Optional
 
+# 导入 logging 和自定义处理器
+import logging
+from dify_plugin.config.logger_format import plugin_logger_handler
+
+# 使用自定义处理器设置日志
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(plugin_logger_handler)
 
 class WechatCustomMessageSender:
     """wechat custom message sender"""

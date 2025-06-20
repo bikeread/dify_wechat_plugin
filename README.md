@@ -9,6 +9,14 @@
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
+## 📝 What's New in v0.0.4
+
+🎉 **Major updates from v0.0.3 to v0.0.4:**
+
+1. **🌐 WeChat API Proxy Support** - Configure custom WeChat API proxy to bypass whitelist restrictions
+2. **⏱️ Configurable Retry Timeout** - Adjust retry wait timeout ratio (default 0.7) for better response timing
+3. **🔥 Interactive Waiting Mode** - When customer service messages are disabled and AI response takes too long, users can reply "1" to extend waiting time with configurable retry limits
+
 ---
 
 > 🚀 **Love this project?** Show your support by giving it a ⭐ on GitHub!  
@@ -63,19 +71,28 @@ The Dify WeChat Official Account Plugin is designed for content creators and pub
 
 ## Plugin Configuration
 
-Required Settings:
+### Required Settings
+- `app`: Select the Dify application that will handle user messages
+- `app_id`: Your Official Account's AppID
 - `wechat_token`: Same token as configured in your WeChat Official Account
 
-Encryption Mode Settings:
-- `encoding_aes_key`: Same as EncodingAESKey in your WeChat Official Account
-- `app_id`: Your Official Account's AppID
-
-Customer Service Message Support:
+### Encryption Mode Settings (Optional)
+- `encoding_aes_key`: Same as EncodingAESKey in your WeChat Official Account (leave empty if not configured)
 - `app_secret`: Your Official Account's AppSecret
 
-Optional Settings:
-- `timeout_message`: Temporary response message for timeout situations
-- `wechat_api_proxy_url`: Custom WeChat API proxy address (default: api.weixin.qq.com)
+### Timeout & Response Settings
+- `timeout_message`: Temporary response message for timeout situations (default: "内容生成耗时较长，请稍等...")
+- `retry_wait_timeout_ratio`: Retry wait timeout ratio between 0.1-1.0 (default: 0.7)
+
+### Customer Service Message Mode (Optional)
+- `enable_custom_message`: Enable customer service messages (requires customer service message permission, default: false)
+
+### Interactive Waiting Mode (Optional, only effective when custom message is disabled)
+- `continue_waiting_message`: Continue waiting prompt message (default: "生成答复中，继续等待请回复1")
+- `max_continue_count`: Maximum continue waiting count (default: 2)
+
+### Network Settings (Optional)
+- `wechat_api_proxy_url`: Custom WeChat API proxy address (default: api.weixin.qq.com, do not include https://, http is not supported)
 
 ## Advanced Usage
 
@@ -180,7 +197,3 @@ If you find this plugin helpful, please consider:
 - 🤝 **Contribute** by submitting pull requests
 
 **Your support motivates continued development and improvement!**
-
-[![GitHub stars](https://img.shields.io/github/stars/bikeread/dify_wechat_plugin.svg?style=social&label=Star)](https://github.com/bikeread/dify_wechat_plugin)
-[![GitHub forks](https://img.shields.io/github/forks/bikeread/dify_wechat_plugin.svg?style=social&label=Fork)](https://github.com/bikeread/dify_wechat_plugin)
-[![GitHub issues](https://img.shields.io/github/issues/bikeread/dify_wechat_plugin.svg)](https://github.com/bikeread/dify_wechat_plugin/issues)
