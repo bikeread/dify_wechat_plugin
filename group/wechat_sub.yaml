@@ -36,12 +36,6 @@ settings:
     label:
       en_US: Wechat AppSecret
       zh_Hans: 微信公众号 AppSecret
-  - name: timeout_message
-    type: text-input
-    required: false
-    label:
-      en_US: Timeout Message
-      zh_Hans: 超时提示信息,默认值为"内容生成耗时较长，请稍等..."
   - name: enable_custom_message
     type: boolean
     required: false
@@ -49,6 +43,12 @@ settings:
       en_US: Enable Custom Message (requires customer service message permission)
       zh_Hans: 启用客服消息（需要客服消息权限）
     default: false
+  - name: timeout_message
+    type: text-input
+    required: false
+    label:
+      en_US: Timeout Message (only effective when custom message is enabled)
+      zh_Hans: 开启客服消息时的超时提示信息,默认值为"内容生成耗时较长，请稍等..."
   - name: continue_waiting_message
     type: text-input
     required: false
@@ -60,16 +60,14 @@ settings:
     type: text-input
     required: false
     label:
-      en_US: Max Continue Count (only effective when custom message is disabled)
-      zh_Hans: 最大继续等待次数（仅在未启用客服消息时生效）
-    default: 2
+      en_US: Max Continue Count (only effective when custom message is disabled, default is 2)
+      zh_Hans: 最大继续等待次数（仅在未启用客服消息时生效， 默认2）
   - name: retry_wait_timeout_ratio
     type: text-input
     required: false
     label:
       en_US: Retry Wait Timeout Ratio (0.1-1.0, default is 0.7)
       zh_Hans: 重试等待超时系数（0.1-1.0，默认0.7）
-    default: 0.7
 endpoints:
   - endpoints/wechat_get.yaml
   - endpoints/wechat_post.yaml
