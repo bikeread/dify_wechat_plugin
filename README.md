@@ -5,13 +5,19 @@
 **Language:** [English](README.md) | [中文](README_zh.md)
 
 **Author:** bikeread  
-**Version:** 0.0.4  
+**Version:** 0.0.5  
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
-## 📝 What's New in v0.0.4
+## 📝 What's New in v0.0.5
 
-🎉 **Major updates from v0.0.3 to v0.0.4:**
+🎉 **Major updates from v0.0.4 to v0.0.5:**
+
+1. **🔧 Plugin Installation Fix** - Fixed plugin installation errors to ensure smooth setup process
+
+### Previous Updates (v0.0.4)
+
+**Major updates from v0.0.3 to v0.0.4:**
 
 1. **🌐 WeChat API Proxy Support** - Configure custom WeChat API proxy to bypass whitelist restrictions
 2. **⏱️ Configurable Retry Timeout** - Adjust retry wait timeout ratio (default 0.7) for better response timing
