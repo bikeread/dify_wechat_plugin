@@ -1,14 +1,12 @@
 import logging
 import threading
 import time
-import json
-from typing import Mapping, Optional, Dict, Any
+from typing import Mapping
 from werkzeug import Request, Response
 from dify_plugin import Endpoint
 
 from endpoints.wechat.handlers import MessageHandler
 # import the split components
-from endpoints.wechat.models import WechatMessage
 from endpoints.wechat.parsers import MessageParser
 from endpoints.wechat.factory import MessageHandlerFactory
 from endpoints.wechat.formatters import ResponseFormatter
@@ -17,7 +15,7 @@ from endpoints.wechat.api import WechatCustomMessageSender
 # import the retry tracker
 from endpoints.wechat.retry_tracker import MessageStatusTracker
 # import the waiting manager
-from endpoints.wechat.waiting_manager import UserWaitingManager, DEFAULT_FINAL_TIMEOUT_MESSAGE
+from endpoints.wechat.waiting_manager import UserWaitingManager
 
 # 导入 logging 和自定义处理器
 import logging
@@ -124,7 +122,7 @@ class WechatPost(Endpoint):
             return self._handle_first_request(message, message_status, settings, 
                                             handler, enable_custom_message, crypto_adapter, r)
         except Exception as e:
-            logger.error(f"处理请求异常: ", e)
+            logger.error(f"处理请求异常: {e}")
             return Response("", status=200, content_type="application/xml")
     
     def _handle_retry(self, message, message_status, retry_count, 
@@ -322,10 +320,13 @@ class WechatPost(Endpoint):
                 else:
                     response_content = f"{continue_waiting_message} (最后1次机会)"
                 
-                # 重新设置用户等待状态
-                updated_waiting_info['start_time'] = time.time()
-                updated_waiting_info['expire_time'] = time.time() + 30
-                UserWaitingManager._waiting_users[message.from_user] = updated_waiting_info
+                # 安全地更新用户等待状态，避免覆盖lock对象
+                with UserWaitingManager._waiting_lock:
+                    if message.from_user in UserWaitingManager._waiting_users:
+                        current_waiting_info = UserWaitingManager._waiting_users[message.from_user]
+                        current_waiting_info['start_time'] = time.time()
+                        current_waiting_info['expire_time'] = time.time() + 30
+                        # 不覆盖整个字典，保持lock对象
                 
                 logger.info(f"继续等待，剩余{remaining_count}次, response_content: {response_content}")
                 response_xml = ResponseFormatter.format_xml(message, response_content)

@@ -1,9 +1,8 @@
 import logging
 import threading
 import time
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional
 
-from .models import WechatMessage
 
 # 导入 logging 和自定义处理器
 import logging

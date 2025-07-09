@@ -64,7 +64,7 @@ class MessageHandler(ABC):
             return True
         except Exception as e:
             logger.error(f"failed to clear cache for user '{user_id}': {str(e)}")
-            return False
+            return True
 
     def get_storage_key(self, user_id: str, app_id: str) -> str:
         """
