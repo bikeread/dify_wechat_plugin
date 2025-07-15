@@ -42,7 +42,6 @@ settings:
     label:
       en_US: Enable Custom Message (requires customer service message permission)
       zh_Hans: 启用客服消息（需要客服消息权限）
-    default: false
   - name: timeout_message
     type: text-input
     required: false

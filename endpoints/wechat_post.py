@@ -50,7 +50,7 @@ class WechatPost(Endpoint):
         logger.debug(f"配置: {settings}")
 
         # 1. get the temporary response message from the configuration
-        temp_response_message = settings.get('timeout_message', DEFAULT_TEMP_RESPONSE)
+        temp_response_message = settings.get('timeout_message') or DEFAULT_TEMP_RESPONSE
         
         # 获取新增配置项，如果配置值为None则使用默认值
         enable_custom_message = settings.get('enable_custom_message') or DEFAULT_ENABLE_CUSTOM_MESSAGE
@@ -79,8 +79,6 @@ class WechatPost(Endpoint):
             message = MessageParser.parse_xml(decrypted_data)
             # create the handler and call the clear cache method
             handler = MessageHandlerFactory.get_handler(message.msg_type)
-            
-            # 继续等待请求也走正常的重试流程，在_handle_retry中特殊处理
             
             # if the clear history instruction is received
             if message.content == CLEAR_HISTORY_MESSAGE:
