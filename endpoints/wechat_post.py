@@ -16,6 +16,7 @@ from endpoints.wechat.api import WechatCustomMessageSender
 from endpoints.wechat.retry_tracker import MessageStatusTracker
 # import the waiting manager
 from endpoints.wechat.waiting_manager import UserWaitingManager
+import re
 
 # 导入 logging 和自定义处理器
 import logging
@@ -39,6 +40,9 @@ CLEAR_HISTORY_MESSAGE = "/clear"
 DEFAULT_ENABLE_CUSTOM_MESSAGE = False  # 默认不启用客服消息
 DEFAULT_CONTINUE_MESSAGE = "生成答复中，继续等待请回复1"
 DEFAULT_MAX_CONTINUE_COUNT = 2
+
+# 单次回复最大长度
+max_length = 600
 
 
 class WechatPost(Endpoint):
@@ -208,6 +212,14 @@ class WechatPost(Endpoint):
         
         # initialize the customer message skip flag to False
         message_status['skip_custom_message'] = False
+
+        # 发送"正在输入"状态
+        if enable_custom_message:
+            app_id = settings.get('app_id')
+            app_secret = settings.get('app_secret')
+            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
+            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
+            sender.set_typing_status(message.from_user, True)
         
         # start the asynchronous processing thread
         thread = threading.Thread(
@@ -224,6 +236,10 @@ class WechatPost(Endpoint):
         is_completed = completion_event.wait(timeout=DEFAULT_HANDLER_TIMEOUT)
         
         if is_completed:
+            # 结束"正在输入"状态
+            if enable_custom_message:
+                sender.set_typing_status(message.from_user, False)
+
             # AI处理完成，直接返回结果
             response_content = message_status.get('result', '') or "抱歉，处理结果为空"
             MessageStatusTracker.mark_result_returned(message)
@@ -372,6 +388,17 @@ class WechatPost(Endpoint):
         try:
             # 等待AI处理完成
             is_completed = completion_event.wait(timeout=300)
+
+            app_id = settings.get('app_id')
+            app_secret = settings.get('app_secret')
+            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
+
+            if not app_id or not app_secret:
+                logger.error("缺少app_id或app_secret配置")
+                return
+            
+            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
+            sender.set_typing_status(message.from_user, False)
             
             if not is_completed:
                 logger.warning("AI处理超时(>5分钟)，强制结束")
@@ -399,25 +426,30 @@ class WechatPost(Endpoint):
                 
             # 获取处理结果并发送客服消息
             content = message_status.get('result', '') or "抱歉，无法获取处理结果"
+            # 去除所有Markdown格式，例如 **粗体**, *斜体*, - 列表等
+            content = re.sub(r'\*\*', '', content)  # 去除双星号
+            content = re.sub(r'[\*\-]', '', content) # 去除单星号和破折号
             
-            app_id = settings.get('app_id')
-            app_secret = settings.get('app_secret')
-            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
-            
-            if not app_id or not app_secret:
-                logger.error("缺少app_id或app_secret配置")
-                return
+            # 检查消息总长度，并进行分段发送，修复了原代码中的重复发送 bug
+            messages_to_send = []
+            current_pos = 0
+            while current_pos < len(content):
+                segment = content[current_pos:current_pos + max_length]
+                messages_to_send.append(segment)
+                current_pos += max_length
 
-            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
-            send_result = sender.send_text_message(
-                open_id=message.from_user,
-                content=content
-            )
-            
+            # 循环发送每段消息
+            for segment in messages_to_send:
+                send_result = sender.send_text_message(
+                    open_id=message.from_user,
+                    content=segment
+                )
+                if not send_result.get('success'):
+                    error_msg = send_result.get('error', 'unknown error')
+                    logger.error(f"客服消息发送失败: {error_msg}")
+                    break  # 如果某段发送失败，跳出循环
+
             if send_result.get('success'):
-                logger.info("客服消息发送成功")
-            else:
-                error_msg = send_result.get('error', 'unknown error')
-                logger.error(f"客服消息发送失败: {error_msg}")
+                logger.info("客服消息分段发送成功")
         except Exception as e:
             logger.error(f"客服消息处理异常: {str(e)}")
