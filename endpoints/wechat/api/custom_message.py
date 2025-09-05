@@ -144,17 +144,28 @@ class WechatCustomMessageSender:
         """
         try:
             access_token = self._get_access_token()
+
             url = f"https://{self.api_base_url}/cgi-bin/message/custom/typing?access_token={access_token}"
+
             data = {
                 "touser": open_id,
                 "command": "Typing" if typing else "CancelTyping"
             }
-            response = requests.post(url, json=data)
+
+            response = requests.post(
+                url=url, 
+                data=json.dumps(data, ensure_ascii=False).encode('utf-8'),
+                headers={'Content-Type': 'application/json'},
+                timeout=10
+            )
+
             result = response.json()
+
             if result.get("errcode") != 0:
                 logger.error(f"设置正在输入状态失败: {result}")
                 return {"success": False, "error": result.get("errmsg")}
             return {"success": True}
+        
         except Exception as e:
             logger.error(f"设置正在输入状态异常: {str(e)}")
             return {"success": False, "error": str(e)}
