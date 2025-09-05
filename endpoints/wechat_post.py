@@ -16,7 +16,6 @@ from endpoints.wechat.api import WechatCustomMessageSender
 from endpoints.wechat.retry_tracker import MessageStatusTracker
 # import the waiting manager
 from endpoints.wechat.waiting_manager import UserWaitingManager
-import re
 
 # 导入 logging 和自定义处理器
 import logging
@@ -40,9 +39,6 @@ CLEAR_HISTORY_MESSAGE = "/clear"
 DEFAULT_ENABLE_CUSTOM_MESSAGE = False  # 默认不启用客服消息
 DEFAULT_CONTINUE_MESSAGE = "生成答复中，继续等待请回复1"
 DEFAULT_MAX_CONTINUE_COUNT = 2
-
-# 单次回复最大长度
-max_length = 600
 
 
 class WechatPost(Endpoint):
@@ -426,30 +422,15 @@ class WechatPost(Endpoint):
                 
             # 获取处理结果并发送客服消息
             content = message_status.get('result', '') or "抱歉，无法获取处理结果"
-            # 去除所有Markdown格式，例如 **粗体**, *斜体*, - 列表等
-            content = re.sub(r'\*\*', '', content)  # 去除双星号
-            content = re.sub(r'[\*\-]', '', content) # 去除单星号和破折号
+            send_result = sender.send_text_message(
+                open_id=message.from_user,
+                content=content
+            )
             
-            # 检查消息总长度，并进行分段发送，修复了原代码中的重复发送 bug
-            messages_to_send = []
-            current_pos = 0
-            while current_pos < len(content):
-                segment = content[current_pos:current_pos + max_length]
-                messages_to_send.append(segment)
-                current_pos += max_length
-
-            # 循环发送每段消息
-            for segment in messages_to_send:
-                send_result = sender.send_text_message(
-                    open_id=message.from_user,
-                    content=segment
-                )
-                if not send_result.get('success'):
-                    error_msg = send_result.get('error', 'unknown error')
-                    logger.error(f"客服消息发送失败: {error_msg}")
-                    break  # 如果某段发送失败，跳出循环
-
             if send_result.get('success'):
-                logger.info("客服消息分段发送成功")
+                logger.info("客服消息发送成功")
+            else:
+                error_msg = send_result.get('error', 'unknown error')
+                logger.error(f"客服消息发送失败: {error_msg}")
         except Exception as e:
             logger.error(f"客服消息处理异常: {str(e)}")
