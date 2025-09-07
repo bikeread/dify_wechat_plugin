@@ -208,6 +208,14 @@ class WechatPost(Endpoint):
         
         # initialize the customer message skip flag to False
         message_status['skip_custom_message'] = False
+
+        # 发送"正在输入"状态
+        if enable_custom_message:
+            app_id = settings.get('app_id')
+            app_secret = settings.get('app_secret')
+            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
+            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
+            sender.set_typing_status(message.from_user, True)
         
         # start the asynchronous processing thread
         thread = threading.Thread(
@@ -224,6 +232,10 @@ class WechatPost(Endpoint):
         is_completed = completion_event.wait(timeout=DEFAULT_HANDLER_TIMEOUT)
         
         if is_completed:
+            # 结束"正在输入"状态
+            if enable_custom_message:
+                sender.set_typing_status(message.from_user, False)
+
             # AI处理完成，直接返回结果
             response_content = message_status.get('result', '') or "抱歉，处理结果为空"
             MessageStatusTracker.mark_result_returned(message)
@@ -372,6 +384,17 @@ class WechatPost(Endpoint):
         try:
             # 等待AI处理完成
             is_completed = completion_event.wait(timeout=300)
+
+            app_id = settings.get('app_id')
+            app_secret = settings.get('app_secret')
+            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
+
+            if not app_id or not app_secret:
+                logger.error("缺少app_id或app_secret配置")
+                return
+            
+            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
+            sender.set_typing_status(message.from_user, False)
             
             if not is_completed:
                 logger.warning("AI处理超时(>5分钟)，强制结束")
@@ -399,16 +422,6 @@ class WechatPost(Endpoint):
                 
             # 获取处理结果并发送客服消息
             content = message_status.get('result', '') or "抱歉，无法获取处理结果"
-            
-            app_id = settings.get('app_id')
-            app_secret = settings.get('app_secret')
-            wechat_api_proxy_url = settings.get('wechat_api_proxy_url')
-            
-            if not app_id or not app_secret:
-                logger.error("缺少app_id或app_secret配置")
-                return
-
-            sender = WechatCustomMessageSender(app_id, app_secret, wechat_api_proxy_url)
             send_result = sender.send_text_message(
                 open_id=message.from_user,
                 content=content
