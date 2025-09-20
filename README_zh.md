@@ -1,5 +1,7 @@
 # Dify 微信公众号插件
 
+![Visitors](https://api.visitorbadge.io/api/VisitorHit?user=bikeread&repo=dify_wechat_plugin&countColor=%237B1FA2)
+
 ⭐ **如果这个插件对您有帮助，请给个Star支持一下！** ⭐
 
 **语言：** [English](README.md) | [中文](README_zh.md)

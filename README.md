@@ -1,5 +1,7 @@
 # Dify WeChat Official Account Plugin
 
+![Visitors](https://api.visitorbadge.io/api/VisitorHit?user=bikeread&repo=dify_wechat_plugin&countColor=%237B1FA2)
+
 ⭐ **If this plugin helps you, please give it a star!** ⭐
 
 **Language:** [English](README.md) | [中文](README_zh.md)
