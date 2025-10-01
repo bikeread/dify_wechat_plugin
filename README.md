@@ -169,20 +169,6 @@ endpoints/
 └── wechat_post.py             # Handle user messages
 ```
 
----
-
-## 🌟 Support This Project
-
-If you find this plugin helpful, please consider:
-
-- ⭐ **Star this repository** to show your support
-- 🐛 **Report issues** to help improve the plugin
-- 💡 **Suggest features** for future development
-- 📢 **Share with others** who might benefit from it
-- 🤝 **Contribute** by submitting pull requests
-
-**Your support motivates continued development and improvement!**
-
 ## Star History
 
 <a href="https://www.star-history.com/#bikeread/dify_wechat_plugin&Date">
