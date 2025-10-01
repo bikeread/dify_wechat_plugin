@@ -11,20 +11,6 @@
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
-## 📝 What's New in v0.0.5
-
-🎉 **Major updates from v0.0.4 to v0.0.5:**
-
-1. **🔧 Plugin Installation Fix** - Fixed plugin installation errors to ensure smooth setup process
-
-### Previous Updates (v0.0.4)
-
-**Major updates from v0.0.3 to v0.0.4:**
-
-1. **🌐 WeChat API Proxy Support** - Configure custom WeChat API proxy to bypass whitelist restrictions
-2. **⏱️ Configurable Retry Timeout** - Adjust retry wait timeout ratio (default 0.7) for better response timing
-3. **🔥 Interactive Waiting Mode** - When customer service messages are disabled and AI response takes too long, users can reply "1" to extend waiting time with configurable retry limits
-
 ---
 
 > 🚀 **Love this project?** Show your support by giving it a ⭐ on GitHub!  
@@ -196,3 +182,13 @@ If you find this plugin helpful, please consider:
 - 🤝 **Contribute** by submitting pull requests
 
 **Your support motivates continued development and improvement!**
+
+## Star History
+
+<a href="https://www.star-history.com/#bikeread/dify_wechat_plugin&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=bikeread/dify_wechat_plugin&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=bikeread/dify_wechat_plugin&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=bikeread/dify_wechat_plugin&type=Date" />
+ </picture>
+</a>
