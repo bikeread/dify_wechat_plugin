@@ -7,7 +7,7 @@
 **Language:** [English](README.md) | [中文](README_zh.md)
 
 **Author:** bikeread  
-**Version:** 6  
+**Version:** 7  
 **Type:** extension  
 **GitHub:** [Repository](https://github.com/bikeread/dify_wechat_plugin) | [Issues](https://github.com/bikeread/dify_wechat_plugin/issues)
 
